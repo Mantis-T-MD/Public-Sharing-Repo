@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CE 95 — Statics Syllabus — Spring 2026</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --text: #e0e0e8;
+    --dim: #8888a0;
+    --accent: #6c8aff;
+    --accent2: #ff6c8a;
+    --green: #4caf50;
+    --gold: #ffc107;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.6rem;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+  h1 small {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--dim);
+    font-weight: 400;
+    margin-top: 4px;
+  }
+  h2 {
+    font-size: 1.15rem;
+    color: var(--accent);
+    margin-top: 28px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+    padding-left: 10px;
+  }
+  h3 {
+    font-size: 1rem;
+    color: var(--gold);
+    margin-top: 18px;
+    margin-bottom: 8px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin: 12px 0;
+  }
+  .land-ack {
+    background: #1a1520;
+    border-color: #2a2030;
+    font-size: 0.82rem;
+    color: var(--dim);
+    font-style: italic;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 6px 12px;
+    font-size: 0.9rem;
+  }
+  .info-grid .label {
+    color: var(--dim);
+    font-weight: 600;
+  }
+  .info-grid .value {
+    color: var(--text);
+  }
+  .info-grid a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .section-grid {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 4px 12px;
+    font-size: 0.9rem;
+    margin-top: 8px;
+  }
+  .section-grid .sec-label {
+    color: var(--accent2);
+    font-weight: 700;
+  }
+  p { margin: 8px 0; font-size: 0.92rem; }
+  ol, ul { padding-left: 22px; margin: 8px 0; }
+  li { margin: 4px 0; font-size: 0.9rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 0.85rem;
+  }
+  table th {
+    background: var(--border);
+    color: var(--accent);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  table tr:hover td { background: rgba(108,138,255,0.05); }
+  .grade-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    font-size: 0.88rem;
+  }
+  .grade-bar .bar {
+    height: 8px;
+    background: var(--accent);
+    border-radius: 4px;
+    min-width: 4px;
+  }
+  .grade-bar .lbl { color: var(--dim); min-width: 130px; }
+  .grade-bar .pct { color: var(--accent); font-weight: 700; min-width: 36px; text-align: right; }
+  .grade-scale {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .grade-scale .g {
+    display: flex;
+    justify-content: space-between;
+    background: var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.82rem;
+  }
+  .grade-scale .g .letter { color: var(--gold); font-weight: 700; }
+  .grade-scale .g .range { color: var(--dim); }
+  .highlight {
+    background: rgba(108,138,255,0.12);
+    border-left: 3px solid var(--accent);
+    padding: 10px 12px;
+    border-radius: 0 8px 8px 0;
+    margin: 10px 0;
+    font-size: 0.9rem;
+  }
+  .important {
+    background: rgba(255,108,138,0.1);
+    border-left: 3px solid var(--accent2);
+    padding: 10px 12px;
+    border-radius: 0 8px 8px 0;
+    margin: 10px 0;
+    font-size: 0.9rem;
+  }
+  .book-card {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .book-card .icon {
+    font-size: 2rem;
+    min-width: 40px;
+    text-align: center;
+  }
+  .book-card .details { font-size: 0.88rem; }
+  .book-card .title { color: var(--gold); font-weight: 600; }
+  .book-card .authors { color: var(--dim); }
+  .abet-table td:first-child {
+    color: var(--accent);
+    font-weight: 700;
+    text-align: center;
+    width: 40px;
+  }
+  .final-exam-table td:first-child {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--dim);
+  }
+</style>
+</head>
+<body>
+
+<h1>
+  CE 95 — Statics
+  <small>Department of Civil and Environmental Engineering · Spring 2026</small>
+</h1>
+
+<div class="card land-ack">
+  <strong>Land Acknowledgement:</strong> The San José State University community recognizes that the present-day Muwekma Ohlone Tribe, with an enrolled Bureau of Indian Affairs documented membership of over 550, is comprised of all of the known surviving American Indian lineages aboriginal to the San Francisco Bay region who trace their ancestry through the Missions Santa Clara, San José, and Dolores, during the advent of the Hispano-European empire into Alta California; and who are the successors and living members of the sovereign, historic, previously Federally Recognized Verona Band of Alameda County.
+</div>
+
+<h2>Course &amp; Contact Information</h2>
+<div class="card">
+  <div class="info-grid">
+    <span class="label">Instructor</span>
+    <span class="value">Ali Mehran</span>
+    <span class="label">Office</span>
+    <span class="value">ENG 155</span>
+    <span class="label">Telephone</span>
+    <span class="value">408-924-3953</span>
+    <span class="label">Email</span>
+    <span class="value"><a href="mailto:ali.mehran@sjsu.edu">ali.mehran@sjsu.edu</a></span>
+    <span class="label">Office Hours</span>
+    <span class="value">Thursdays 13:30–15:30 / Zoom (book appointment)</span>
+    <span class="label">Drop-In Hours</span>
+    <span class="value">Thursdays 13:30–15:30 in classroom Zoom room (Canvas » Zoom). Extra hours before each midterm — check course website.</span>
+  </div>
+</div>
+
+<h3>Sections</h3>
+<div class="card">
+  <div class="section-grid">
+    <span class="sec-label">Sec 03</span>
+    <span>Mo/We 12:00–13:15 PM · ENG 331</span>
+    <span class="sec-label">Sec 04</span>
+    <span>Tu/Th 16:30–17:45 PM · ENG 341</span>
+  </div>
+</div>
+
+<div class="important">
+  <strong>Prerequisites:</strong> MATH 31X or MATH 31, and PHYS 50
+</div>
+
+<div class="highlight">
+  <strong>Important Note:</strong> If you have not mastered concepts in Calculus/Geometry/Trigonometry, visit the instructor or grader for resources. You will also have assignments in EXCEL — if unfamiliar, check Canvas » Pages » EXCEL for resources.
+</div>
+
+<h3>About Your Instructor</h3>
+<div class="card">
+  <p>I failed geometry in high school — it was my first F (I have failed after that too). After I failed, I recognized that failure as an opportunity to challenge myself, and it worked. I also failed the PE exam once in 2018, and have not taken the exam after that. I am reviewing material for that exam and that is my motivation to learn with you as we proceed.</p>
+</div>
+
+<h2>Course Format</h2>
+<div class="card">
+  <p><strong>In Person</strong> · Technology Intensive</p>
+  <p>A calculator (PE standard) is needed.</p>
+</div>
+
+<h2>Canvas &amp; Communications</h2>
+<div class="card">
+  <p>Course materials (syllabus, handouts, notes, assignments, etc.) are on Canvas. You are responsible for regularly checking Canvas notifications, email, and the Discord channel for updates. Use your SJSU email or Discord for all course-related communication.</p>
+  <p><strong>Email response time:</strong> If you email and don't hear back within two business days, please send a follow-up.</p>
+  <p><strong>Discord Server:</strong> Primary communication channel. The grader and instructor check multiple times daily/weekly. If you see an unanswered question and know the answer, share it. Chat messages are not private. For one-on-one discussions, use email.</p>
+</div>
+
+<h2>Course Description</h2>
+<div class="card">
+  <p>Resolution and composition of force systems and equilibrium of force systems acting on structures and mechanisms. Distributed forces. Friction. Moments of inertia. <strong>(4 Units)</strong></p>
+</div>
+
+<h2>Course Learning Outcomes (CLO)</h2>
+<div class="card">
+  <ol>
+    <li>Calculate the resultant force due to a system of forces.</li>
+    <li>Calculate moments about points or lines for 2D or 3D systems.</li>
+    <li>Calculate external reactions for statically-determinate, rigid bodies in 2D and 3D equilibrium.</li>
+    <li>Draw Free Body Diagrams for rigid bodies in 2D and 3D equilibrium.</li>
+    <li>Calculate internal member forces in trusses, frames, cables, machines, and beams using equations of static equilibrium.</li>
+    <li>Develop shear and moment equations for beams.</li>
+    <li>Solve static dry friction problems.</li>
+    <li>Determine the location of centroids (2D) and centers of gravity (3D) for various shapes.</li>
+    <li>Determine the 2nd Moment of Area (Moment of Inertia) of various figures.</li>
+    <li>Present problem solutions in a clear, logical manner with free-body diagrams and a clearly documented solution strategy.</li>
+    <li>Identify the importance of accurately determining system loading and support reactions to prevent catastrophic system failure by doing a real-life group project at the campus. The team will measure a real structure and analyze it as a project. Students will understand how to run a project with professional approach, learn about professional licensure by talking to engineers, apply statics knowledge to analyze real structures, use techniques/skills/interdisciplinary and modern engineering tools, identify/formulate/solve engineering problems, understand systems within realistic constraints (project management, economic, environmental, social, political, ethical, health and safety, manufacturability, sustainability), and support community-based learning by interacting with campus authorities for measurements.</li>
+    <li>Present the project in a public speech — discuss findings from the real project, compare with course theories, and demonstrate effective communication.</li>
+  </ol>
+</div>
+
+<h2>ABET Student Outcomes</h2>
+<div class="card">
+  <table class="abet-table">
+    <thead>
+      <tr><th>Outcome</th><th>Description</th><th>CLO Alignment</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>c</td>
+        <td>Design a system/component/process to meet desired needs within realistic constraints (economic, environmental, political, ethical, health and safety, manufacturability, sustainability)</td>
+        <td>CLO 1–10</td>
+      </tr>
+      <tr>
+        <td>e</td>
+        <td>Identify, formulate, and solve engineering problems</td>
+        <td>CLO 1–10</td>
+      </tr>
+      <tr>
+        <td>f</td>
+        <td>Understanding of professional and ethical responsibility</td>
+        <td>CLO 11</td>
+      </tr>
+      <tr>
+        <td>g</td>
+        <td>Communicate effectively</td>
+        <td>CLO 12 (community-based project)</td>
+      </tr>
+      <tr>
+        <td>i</td>
+        <td>Recognition of need for and ability to engage in life-long learning</td>
+        <td>CLO 11–12</td>
+      </tr>
+      <tr>
+        <td>k</td>
+        <td>Use techniques, skills, and modern engineering tools for engineering practice</td>
+        <td>CLO 11</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Workload &amp; Late Policy</h2>
+<div class="card">
+  <p>Students should spend a minimum of <strong>45 hours per unit</strong> over the course length (normally 3 hours/unit/week) for instruction, preparation/studying, and course-related activities.</p>
+  <div class="important" style="margin-top:10px;">
+    <strong>Late submissions:</strong> 1–7 days late → up to <strong>50% penalty</strong>
+  </div>
+</div>
+
+<h2>Generative AI Policy</h2>
+<div class="card">
+  <p>Generative AI can be used in this course at <strong>specified times with proper attribution</strong>. Students may use tools such as ChatGPT to complete specific assignments given instructor guidance and permission, provided use is properly disclosed through in-text citations, quotations, and references. Use must be responsible and ethical — comply with all privacy laws and research requirements to protect data. Clarify any questions on whether data may be entered into a generative AI tool with the instructor.</p>
+</div>
+
+<h2>Final Examination</h2>
+<div class="card">
+  <p>A comprehensive final exam covering all course content. Reference for exams is always the textbook — some chapters/sections may not be covered in slides/assignments/homework.</p>
+  <table class="final-exam-table">
+    <thead>
+      <tr><th>Section</th><th>Exam Day</th><th>Time</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Sec 03 (Mo/We 12 PM)</td><td>Mon, May 18</td><td>10:45–12:45 PM</td></tr>
+      <tr><td>Sec 04 (Tu/Th 4:30 PM)</td><td>Thu, May 14</td><td>15:15–17:15 PM</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Grading</h2>
+<div class="card">
+  <div class="grade-bar">
+    <span class="lbl">Final Exam</span>
+    <span class="pct">40%</span>
+    <div class="bar" style="width: 40%;"></div>
+  </div>
+  <div class="grade-bar">
+    <span class="lbl">Homework</span>
+    <span class="pct">30%</span>
+    <div class="bar" style="width: 30%;"></div>
+  </div>
+  <div class="grade-bar">
+    <span class="lbl">Midterm #1</span>
+    <span class="pct">10%</span>
+    <div class="bar" style="width: 10%;"></div>
+  </div>
+  <div class="grade-bar">
+    <span class="lbl">Midterm #2</span>
+    <span class="pct">10%</span>
+    <div class="bar" style="width: 10%;"></div>
+  </div>
+  <div class="grade-bar">
+    <span class="lbl">Class Assignments</span>
+    <span class="pct">10%</span>
+    <div class="bar" style="width: 10%;"></div>
+  </div>
+
+  <h3>Grade Scale</h3>
+  <div class="grade-scale">
+    <div class="g"><span class="letter">A+</span><span class="range">&gt; 97</span></div>
+    <div class="g"><span class="letter">A</span><span class="range">93–96</span></div>
+    <div class="g"><span class="letter">A-</span><span class="range">90–92</span></div>
+    <div class="g"><span class="letter">B+</span><span class="range">87–89</span></div>
+    <div class="g"><span class="letter">B</span><span class="range">83–86</span></div>
+    <div class="g"><span class="letter">B-</span><span class="range">80–82</span></div>
+    <div class="g"><span class="letter">C+</span><span class="range">77–79</span></div>
+    <div class="g"><span class="letter">C</span><span class="range">73–76</span></div>
+    <div class="g"><span class="letter">C-</span><span class="range">70–72</span></div>
+    <div class="g"><span class="letter">D+</span><span class="range">67–69</span></div>
+    <div class="g"><span class="letter">D</span><span class="range">63–66</span></div>
+    <div class="g"><span class="letter">D-</span><span class="range">60–62</span></div>
+    <div class="g"><span class="letter">F</span><span class="range">&lt; 59</span></div>
+  </div>
+  <p style="font-size:0.82rem; color:var(--dim); margin-top:8px;">Standard decimal rounding (0.5 and greater rounded up). Instructor may adjust thresholds downward if appropriate.</p>
+</div>
+
+<div class="highlight">
+  <strong>Instructor's note:</strong> Some students have told me they felt at times they were not doing well and became uncertain about belonging in this class or major. I advised them to hang in there — access the tutoring center, put in extra study hours, and join/change a study group. A number of these students contacted me later to tell me they did feel like they belonged in the class and in the major.
+</div>
+
+<h2>Change of Grade Policy</h2>
+<div class="card">
+  <p>All grades become final when assigned and reported to the Office of the Registrar. A grade may not be changed due to re-evaluation, re-examination, or additional work after the term ends. Any grade change requires approval of the department chair and associate dean. No grades may be changed after one year.</p>
+  <p>It is the student's responsibility to inform the professor of any issues before the final deadline. Once grades are reported to the registrar, they cannot be changed.</p>
+  <div class="important" style="margin-top:8px;">
+    Grades will be posted before finalization. You have <strong>7 days</strong> to contact the instructor with questions or concerns. After <strong>14 days</strong>, grades are reported and marked final.
+  </div>
+</div>
+
+<h2>Classroom Protocol</h2>
+<div class="card">
+  <ul>
+    <li><strong>Notebook/Preparation:</strong> Keep an organized binder — materials and notes are essential.</li>
+    <li><strong>No eating or drinking</strong> in the classroom.</li>
+    <li><strong>Electronics:</strong> No cell phones. iPads/computers allowed for class work, note-taking, and assignments only.</li>
+    <li><strong>Attendance:</strong> Essential for success. Students responsible for all course requirements. Makeup opportunities may be available for documented situations (serious illness, family death, religious observances, official university representation).</li>
+  </ul>
+</div>
+
+<h2>Project &amp; Assignment Requirements</h2>
+<div class="card">
+  <h3>General</h3>
+  <ul>
+    <li>All coursework is <strong>individual work</strong> (no group work expected except where specified).</li>
+    <li>If the project is team work: one report and PowerPoint, but all students present individually.</li>
+    <li>At the end of each project/paper, students present and submit reports. Other students and the professor may ask questions during oral presentation.</li>
+  </ul>
+
+  <h3>Report/Calculation Note Guidelines</h3>
+  <p>All reports prepared in Word software. In a binder or with binding (loose papers not accepted).</p>
+  <ol>
+    <li><strong>Cover:</strong> School name, student names, professor, date, project title</li>
+    <li><strong>Summary</strong></li>
+    <li><strong>Table of Contents</strong></li>
+    <li><strong>Chapter 1:</strong> Purpose, aim, target, scope of work, limitations, assumptions, background &amp; research</li>
+    <li><strong>Chapter 2:</strong> Tests, trials, activities — explain the project</li>
+    <li><strong>Chapter 3:</strong> Drafting and design calculation</li>
+    <li><strong>Chapter 4:</strong> Conclusion, summary of findings and lessons learned</li>
+  </ol>
+</div>
+
+<h2>Academic Integrity</h2>
+<div class="card">
+  <p>Faculty are required to report all infractions to the Office of Student Life. Copying homework/coursework from another student or an online source is cheating.</p>
+  <p>Plagiarism is the representation of another's words or ideas as one's own. Common forms include: copying from the internet, copying from another student, failing to give credit for quoted/paraphrased/summarized ideas, re-using your own work for multiple classes, misrepresenting quoted evidence.</p>
+  <div class="important" style="margin-top:8px;">
+    <strong>Turnitin thresholds:</strong>
+    <ul style="margin-top:6px;">
+      <li>Up to 10% — acceptable (reviewed by professor)</li>
+      <li>10–20% — 10% score deduction</li>
+      <li>20–25% — 20% score deduction</li>
+      <li>&gt; 25% — <strong>failed project</strong></li>
+    </ul>
+  </div>
+  <p style="margin-top:8px;"><strong>Course Conduct:</strong> All students agree not to give or receive unpermitted aid on work used for evaluation. Where permitted aid is provided, it must be acknowledged.</p>
+</div>
+
+<h2>Textbook</h2>
+<div class="card">
+  <div class="book-card">
+    <div class="icon">📖</div>
+    <div class="details">
+      <div class="title">Vector Mechanics for Engineers: Statics and Dynamics</div>
+      <div class="authors">Ferdinand Beer, E. Russell Johnston Jr., David Mazurek, Phillip Cornwell, Brian Self</div>
+      <p style="margin-top:4px;">Copyright 2016</p>
+      <p>Hardcopy: ISBN 978-0-07-339824-2</p>
+      <p>Connect: ISBN 978-1-259-63926-5</p>
+    </div>
+  </div>
+</div>
+
+<h2>University Policies</h2>
+<div class="card">
+  <p>Per University Policy S16-9, relevant policies concerning student responsibilities, academic integrity, accommodations, dropping/adding, consent for recording, and available student services are listed on the <a href="http://www.sjsu.edu/gup/syllabusinfo" style="color:var(--accent);">Syllabus Information web page</a> (Office of Undergraduate Education).</p>
+</div>
+
+<h2>Disability Accommodations</h2>
+<div class="card">
+  <p>If you have a documented disability for which accommodations may be required in this class, please contact Disabilities Resources.</p>
+</div>
+
+<footer>
+  CE 95 Statics · Spring 2026 · San José State University · Department of Civil and Environmental Engineering
+</footer>
+
+</body>
+</html>

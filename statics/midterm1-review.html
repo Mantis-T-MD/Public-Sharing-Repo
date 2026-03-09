@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CE 95 — Midterm 1 Review Sheet</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --text: #e0e0e8;
+    --dim: #8888a0;
+    --accent: #6c8aff;
+    --accent2: #ff6c8a;
+    --green: #4caf50;
+    --gold: #ffc107;
+    --orange: #ff9800;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    padding: 10px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.3rem;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  h1 small {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--dim);
+    font-weight: 400;
+  }
+  .exam-info {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--accent2);
+    font-weight: 600;
+    margin: 6px 0 14px;
+    padding: 6px;
+    background: rgba(255,108,138,0.08);
+    border-radius: 8px;
+  }
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+    justify-content: center;
+  }
+  .toc a {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .toc a:hover, .toc a:active { background: rgba(108,138,255,0.15); }
+  .ch {
+    margin: 18px 0 6px;
+    padding: 8px 12px;
+    background: rgba(108,138,255,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .ch .emphasis {
+    font-size: 0.72rem;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-left: 8px;
+    text-transform: uppercase;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 8px 0;
+  }
+  h3 {
+    font-size: 0.9rem;
+    color: var(--gold);
+    margin: 10px 0 6px;
+  }
+  h3:first-child { margin-top: 0; }
+  p { font-size: 0.86rem; margin: 4px 0; }
+  .eq {
+    font-family: 'Courier New', monospace;
+    background: rgba(108,138,255,0.08);
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin: 6px 0;
+    font-size: 0.88rem;
+    color: var(--green);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .eq-block {
+    font-family: 'Courier New', monospace;
+    background: rgba(108,138,255,0.06);
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 8px 0;
+    font-size: 0.84rem;
+    color: var(--green);
+    line-height: 1.7;
+  }
+  ul, ol { padding-left: 20px; margin: 4px 0; }
+  li { font-size: 0.85rem; margin: 3px 0; }
+  .warn {
+    background: rgba(255,108,138,0.08);
+    border-left: 3px solid var(--accent2);
+    padding: 8px 12px;
+    border-radius: 0 8px 8px 0;
+    margin: 8px 0;
+    font-size: 0.84rem;
+  }
+  .warn strong { color: var(--accent2); }
+  .tip {
+    background: rgba(76,175,80,0.08);
+    border-left: 3px solid var(--green);
+    padding: 8px 12px;
+    border-radius: 0 8px 8px 0;
+    margin: 8px 0;
+    font-size: 0.84rem;
+  }
+  .tip strong { color: var(--green); }
+  .support-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin: 8px 0;
+  }
+  .support-table th {
+    background: var(--border);
+    padding: 6px 8px;
+    text-align: left;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .support-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .step {
+    display: flex;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 0.85rem;
+  }
+  .step .num {
+    min-width: 22px;
+    height: 22px;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+  }
+  .sign-conv {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 0.82rem;
+  }
+  .sign-conv .item {
+    padding: 6px 8px;
+    background: rgba(30,30,46,0.8);
+    border-radius: 6px;
+  }
+  .sign-conv .pos { border-left: 3px solid var(--green); }
+  .sign-conv .neg { border-left: 3px solid var(--accent2); }
+  footer {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--dim);
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  @media print {
+    body { background: #fff; color: #000; font-size: 9pt; padding: 0; }
+    .card { border: 1px solid #ccc; background: #fafafa; }
+    .ch { background: #eef; color: #336; }
+    .eq, .eq-block { background: #f0f5f0; color: #060; }
+    .warn { background: #fff0f0; }
+    .tip { background: #f0fff0; }
+    :root { --accent: #336; --accent2: #933; --green: #363; --gold: #963; --dim: #666; }
+  }
+</style>
+</head>
+<body>
+
+<h1>
+  CE 95 — Midterm #1 Review
+  <small>Statics · Spring 2026 · Prof. Mehran · Beer et al. Textbook</small>
+</h1>
+<div class="exam-info">
+  Section 04 · Tue Mar 10 · 16:30 · Open Book + 10 Pages Notes<br>
+  Coverage: Ch 1, 2.1–2.5, 3.1–3.2, 3.4, 4.1–4.2, 7.1–7.2 · Emphasis: Ch 3 &amp; 4
+</div>
+
+<div class="card" style="border-left:3px solid var(--gold); margin-bottom:14px;">
+  <h3 style="color:var(--gold);">📌 From Prof. Mehran's Lectures (Exam Clues)</h3>
+  <ul style="font-size:0.85rem;">
+    <li><strong>He tests BOTH moment methods</strong> — Class quiz required: (a) vector product method (r × F) AND (b) Fx/Fy component method for the SAME problem. Expect the exam to ask for both.</li>
+    <li><strong>Force-couple system reduction</strong> is heavily covered in Lecture 2 — replacing a system of forces with equivalent force + couple at a point. Practiced with 3D cable bracket example.</li>
+    <li><strong>FBD = "conversion of real elements to the equivalent force system"</strong> — his definition. The exam will test whether you can convert a real structure to an FBD correctly.</li>
+    <li><strong>Rigid body concept</strong> — he explains WHY: "stiffness does not influence the analysis results" for determinate structures. Conceptual question possible.</li>
+    <li><strong>Lecture 4: 7 beam examples</strong> — SFD/BMD construction is heavily practiced. Expect at least one beam problem with V and M diagrams.</li>
+    <li><strong>Jeff Hanson videos</strong> — Prof assigns these (Static Lesson 22 for moments). Watch for exam prep.</li>
+    <li><strong>Unit conversions</strong> — He emphasizes: 1 Short Ton = 2000 lbs, 1 Tonne = 1000 kg, lbf = slug × 32.2 ft/s².</li>
+  </ul>
+</div>
+
+<div class="toc">
+  <a href="#ch1">Ch 1</a>
+  <a href="#ch2">Ch 2</a>
+  <a href="#ch3">Ch 3 ★</a>
+  <a href="#ch4">Ch 4 ★</a>
+  <a href="#ch7">Ch 7</a>
+  <a href="#fbd">FBD</a>
+  <a href="#strat">Strategy</a>
+  <a href="#traps">Traps</a>
+</div>
+
+<!-- ═══════════ CHAPTER 1 ═══════════ -->
+<div class="ch" id="ch1">Ch 1 — Fundamentals</div>
+
+<div class="card">
+  <h3>Newton's Laws</h3>
+  <ol>
+    <li>A body at rest stays at rest (or constant velocity) unless acted on by a net external force.</li>
+    <li><span class="eq" style="display:inline; padding:2px 6px;">F = ma</span> — Force equals mass × acceleration.</li>
+    <li>Every action has an equal and opposite reaction.</li>
+  </ol>
+
+  <h3>Units</h3>
+  <div class="eq-block">
+SI:  Force = Newton (N) = kg·m/s²
+     1 kN = 1000 N
+US:  Force = pound (lb)
+     1 kip = 1000 lb
+     Weight: W = mg  (g = 9.81 m/s² or 32.2 ft/s²)
+  </div>
+
+  <div class="eq-block" style="margin-top:6px;">
+Prof's Key Conversions:
+  1 Short Ton (American) = 2000 lbs
+  1 Tonne (SI/Metric) = 1000 kg
+  Mass: lbf = slug × 32.2 ft/s²
+  1 ft = 12 in     1 m = 100 cm = 1000 mm
+  SI mass = kg → W = kg × 9.81 = N
+  US mass = slug → W = slug × 32.2 = lbf
+  </div>
+
+  <h3>Vectors vs Scalars</h3>
+  <ul>
+    <li><strong>Scalar</strong>: magnitude only (mass, temperature, energy)</li>
+    <li><strong>Vector</strong>: magnitude + direction (force, velocity, moment)</li>
+    <li>Vectors add by parallelogram law or triangle rule, NOT algebraically</li>
+  </ul>
+</div>
+
+<!-- ═══════════ CHAPTER 2 ═══════════ -->
+<div class="ch" id="ch2">Ch 2 — Statics of Particles (Force Vectors)</div>
+
+<div class="card">
+  <h3>2.1–2.3: 2D Force Systems</h3>
+
+  <p><strong>Rectangular Components:</strong></p>
+  <div class="eq-block">
+Fx = F cos θ       Fy = F sin θ
+F  = √(Fx² + Fy²)  θ = tan⁻¹(Fy / Fx)
+  </div>
+
+  <p><strong>Resultant of Concurrent Forces:</strong></p>
+  <div class="eq-block">
+Rx = ΣFx = F₁x + F₂x + F₃x + ...
+Ry = ΣFy = F₁y + F₂y + F₃y + ...
+R  = √(Rx² + Ry²)
+θR = tan⁻¹(Ry / Rx)
+  </div>
+
+  <p><strong>Particle Equilibrium (2D):</strong></p>
+  <div class="eq">ΣFx = 0    ΣFy = 0</div>
+  <p>Two equations → can solve for two unknowns.</p>
+
+  <div class="tip">
+    <strong>Strategy:</strong> Orient axes to align with as many forces as possible — reduces components to calculate.
+  </div>
+</div>
+
+<div class="card">
+  <h3>2.4–2.5: 3D Force Systems</h3>
+
+  <p><strong>Cartesian Vector Notation:</strong></p>
+  <div class="eq">F = Fxî + Fyĵ + Fzk̂</div>
+
+  <p><strong>Direction Cosines:</strong></p>
+  <div class="eq-block">
+cos α = Fx/F    cos β = Fy/F    cos γ = Fz/F
+cos²α + cos²β + cos²γ = 1       (ALWAYS!)
+  </div>
+
+  <p><strong>Unit Vector Along a Line (A→B):</strong></p>
+  <div class="eq-block">
+r_AB = (xB − xA)î + (yB − yA)ĵ + (zB − zA)k̂
+λ_AB = r_AB / |r_AB|
+F = F · λ_AB     (force vector along AB)
+  </div>
+
+  <p><strong>Dot Product:</strong></p>
+  <div class="eq-block">
+A · B = AxBx + AyBy + AzBz = |A||B| cos θ
+θ = cos⁻¹(A · B / |A||B|)   (angle between vectors)
+  </div>
+
+  <p><strong>Particle Equilibrium (3D):</strong></p>
+  <div class="eq">ΣFx = 0    ΣFy = 0    ΣFz = 0</div>
+  <p>Three equations → three unknowns.</p>
+
+  <div class="warn">
+    <strong>Common mistake:</strong> Forgetting cos²α + cos²β + cos²γ = 1. Use this to check or find a missing direction cosine.
+  </div>
+</div>
+
+<!-- ═══════════ CHAPTER 3 ═══════════ -->
+<div class="ch" id="ch3">Ch 3 — Rigid Bodies: Moments &amp; Couples <span class="emphasis">★ High Emphasis</span></div>
+
+<div class="card">
+  <h3>3.1: Moment of a Force About a Point</h3>
+
+  <p><strong>Definition:</strong> The tendency of a force to cause rotation about a point.</p>
+
+  <div class="eq">M_O = r × F</div>
+
+  <p><strong>Scalar form (2D):</strong></p>
+  <div class="eq">|M_O| = F · d    (d = perpendicular distance from O to line of action)</div>
+
+  <p><strong>Vector cross product (3D):</strong></p>
+  <div class="eq-block">
+M_O = r × F = |î   ĵ   k̂ |
+              |rx  ry  rz|
+              |Fx  Fy  Fz|
+
+M_O = (ryFz − rzFy)î − (rxFz − rzFx)ĵ + (rxFy − ryFx)k̂
+  </div>
+
+  <p><strong>Varignon's Theorem:</strong></p>
+  <div class="eq">M_O = r × (F₁ + F₂) = r × F₁ + r × F₂</div>
+  <p>The moment of a force = sum of moments of its components. Decompose F into components, take moments of each — often simpler.</p>
+
+  <div class="tip">
+    <strong>Key insight:</strong> For moment calculation, r can be ANY vector from O to ANY point on the line of action of F. Choose the simplest one.
+  </div>
+
+  <p><strong>Sign convention (2D):</strong></p>
+  <div class="sign-conv">
+    <div class="item pos">+ CCW (counterclockwise)</div>
+    <div class="item neg">− CW (clockwise)</div>
+  </div>
+
+  <div class="divider"></div>
+  <h3 style="color:var(--gold);">⚠ Two Methods for Moment (Prof Tests Both!)</h3>
+
+  <p><strong>Method 1 — Scalar (Perpendicular Distance):</strong></p>
+  <div class="eq-block">
+M_O = ± F · d     (d = perpendicular distance to line of action)
+  </div>
+  <p>Quick when d is obvious. Determine CW/CCW by inspection.</p>
+
+  <p><strong>Method 2 — Vector Product (Components):</strong></p>
+  <div class="eq-block">
+M_O = r × F
+    = (x·Fy − y·Fx) k̂     (for 2D, with r = xî + yĵ)
+  </div>
+  <p>Always works. r = position vector from O to ANY point on F's line of action.</p>
+
+  <p><strong>Method 3 — Varignon / Component Method (Fx, Fy separately):</strong></p>
+  <div class="eq-block">
+M_O = Fx·(⊥ dist to Fx) ± Fy·(⊥ dist to Fy)
+  </div>
+  <p>Decompose F into Fx and Fy at the application point, then sum each component's moment separately. Often the easiest method on exams.</p>
+
+  <div class="tip">
+    <strong>Prof's class quiz format:</strong> Solve the same moment problem using BOTH the vector product (r × F) AND the Fx/Fy component method. Show all work for both. Expect this on the exam.
+  </div>
+</div>
+
+<div class="card">
+  <h3>3.2: Moment About an Axis</h3>
+
+  <p>Project moment onto axis direction:</p>
+  <div class="eq">M_L = λ_L · (r × F)</div>
+
+  <p><strong>Scalar triple product (determinant form):</strong></p>
+  <div class="eq-block">
+M_L = |λx  λy  λz|
+      |rx  ry  rz|
+      |Fx  Fy  Fz|
+  </div>
+
+  <p>Where λ_L is the unit vector along the axis, r is position vector from any point on the axis to any point on the force's line of action.</p>
+
+  <div class="warn">
+    <strong>Key rule:</strong> If F is parallel to axis L, or if F intersects axis L, then M_L = 0.
+  </div>
+</div>
+
+<div class="card">
+  <h3>3.4: Couples</h3>
+
+  <p><strong>Definition:</strong> Two forces, equal magnitude, opposite direction, separated by distance d.</p>
+
+  <div class="eq">M = r × F    |M| = F · d</div>
+
+  <p><strong>Properties (CRITICAL):</strong></p>
+  <ul>
+    <li>A couple produces ROTATION ONLY (no translation) — net force = 0</li>
+    <li>Moment of a couple is the SAME about ANY point (free vector)</li>
+    <li>A couple can be moved anywhere without changing its effect</li>
+    <li>Couples can be added as vectors: M_R = M₁ + M₂ + ...</li>
+    <li>A couple can be replaced by any other couple with the same moment vector</li>
+  </ul>
+
+  <div class="tip">
+    <strong>Strategy for couple problems:</strong> Since the moment is the same about any point, choose the most convenient point to compute it. You don't need to pick a specific reference point.
+  </div>
+</div>
+
+<div class="card">
+  <h3>Simplifying Force Systems (3.1 + 3.4 Combined)</h3>
+
+  <p><strong>Any force system can be reduced to:</strong></p>
+  <ol>
+    <li>A single resultant force <strong>R</strong> = ΣF (acting at a chosen point O)</li>
+    <li>A resultant couple moment <strong>M_O</strong> = ΣM_O (about that point O)</li>
+  </ol>
+
+  <div class="eq-block">
+R  = ΣF
+M_O = Σ(r × F) + ΣM_couples
+  </div>
+
+  <p><strong>Special cases:</strong></p>
+  <ul>
+    <li>If R = 0 → system is a couple (pure rotation)</li>
+    <li>If M_O = 0 → system reduces to a single force through O</li>
+    <li>If R ≠ 0 and M_O ⊥ R → can reduce to a single force at a new location</li>
+  </ul>
+
+  <div class="divider"></div>
+  <h3 style="color:var(--gold);">Force-Couple Reduction Procedure (Exam Favorite)</h3>
+
+  <p><strong>Given:</strong> Multiple forces F₁, F₂, ... and couples M₁, M₂, ... → Reduce to equivalent system at point O.</p>
+  <div class="step"><span class="num">1</span><strong>Move each force to O</strong> — Each force moved to O introduces a couple: M_i = r_i × F_i</div>
+  <div class="step"><span class="num">2</span><strong>Sum all forces</strong> at O: <span class="eq" style="display:inline; padding:2px 6px;">R = ΣF_i</span></div>
+  <div class="step"><span class="num">3</span><strong>Sum all couples</strong>: <span class="eq" style="display:inline; padding:2px 6px;">M_O = Σ(r_i × F_i) + ΣM_couples</span></div>
+  <div class="step"><span class="num">4</span><strong>Result</strong>: One force R at O + one couple M_O</div>
+
+  <div class="tip">
+    <strong>Key insight:</strong> Moving a force to a different point ALWAYS adds a couple. The couple equals the moment of the original force about the new point. This is reversible: force-couple at O can become a single force at a new location if R ≠ 0.
+  </div>
+</div>
+
+<!-- ═══════════ CHAPTER 4 ═══════════ -->
+<div class="ch" id="ch4">Ch 4 — Equilibrium of Rigid Bodies <span class="emphasis">★ High Emphasis</span></div>
+
+<div class="card">
+  <h3>4.1: Conditions for Equilibrium</h3>
+
+  <p><strong>2D Equilibrium (3 equations, 3 unknowns):</strong></p>
+  <div class="eq">ΣFx = 0    ΣFy = 0    ΣM_A = 0</div>
+
+  <p><strong>Alternative equation sets (all valid):</strong></p>
+  <div class="eq-block">
+Set 1: ΣFx = 0,  ΣFy = 0,  ΣM_A = 0    (standard)
+Set 2: ΣFx = 0,  ΣM_A = 0, ΣM_B = 0    (A-B not ⊥ to x-axis)
+Set 3: ΣM_A = 0, ΣM_B = 0, ΣM_C = 0    (A,B,C not collinear)
+  </div>
+
+  <div class="tip">
+    <strong>Strategy:</strong> Take moments about a point where unknown forces intersect — eliminates those unknowns from the equation, solving directly for a third.
+  </div>
+
+  <p><strong>3D Equilibrium (6 equations, 6 unknowns):</strong></p>
+  <div class="eq">ΣFx = 0  ΣFy = 0  ΣFz = 0  ΣMx = 0  ΣMy = 0  ΣMz = 0</div>
+</div>
+
+<div class="card">
+  <h3>4.2: Support Reactions</h3>
+
+  <table class="support-table">
+    <thead>
+      <tr><th>Support Type</th><th>Reactions</th><th># Unknowns</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Roller / Rocker</strong></td>
+        <td>1 force (⊥ to surface)</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td><strong>Pin / Hinge</strong></td>
+        <td>2 forces (Ax, Ay)</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td><strong>Fixed / Built-in</strong></td>
+        <td>2 forces + 1 moment (Ax, Ay, MA)</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td><strong>Link / Cable</strong></td>
+        <td>1 force (along link direction)</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td><strong>Smooth surface</strong></td>
+        <td>1 force (⊥ to surface, push only)</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td><strong>Ball-and-socket (3D)</strong></td>
+        <td>3 forces (Ax, Ay, Az)</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td><strong>Fixed (3D)</strong></td>
+        <td>3 forces + 3 moments</td>
+        <td>6</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <strong>Cable rule:</strong> Cables/ropes can only PULL (tension). They cannot push. Always assume tension and if you get a negative value, the cable is slack (zero force, not compression).
+  </div>
+</div>
+
+<div class="card">
+  <h3>Determinacy &amp; Stability</h3>
+
+  <p><strong>Statically determinate (2D):</strong> # unknowns = 3 (can solve with 3 equilibrium equations)</p>
+  <p><strong>Statically indeterminate:</strong> # unknowns > 3 (need additional equations — deformation, etc.)</p>
+
+  <p><strong>Stability checks:</strong></p>
+  <ul>
+    <li><strong>Improper constraints:</strong> All reactions concurrent (meet at a point) or parallel → unstable</li>
+    <li>3 unknowns with 3 equations doesn't guarantee stability — check geometric arrangement</li>
+    <li>If all supports provide only horizontal reactions → no vertical equilibrium → unstable</li>
+  </ul>
+</div>
+
+<!-- ═══════════ CHAPTER 7 ═══════════ -->
+<div class="ch" id="ch7">Ch 7 — Internal Forces (Beams)</div>
+
+<div class="card">
+  <h3>7.1: Internal Forces in Members</h3>
+
+  <p><strong>Method of Sections:</strong> Cut the member at the point of interest. Internal forces on the cut face:</p>
+  <ul>
+    <li><strong>N</strong> = Normal force (along member axis)</li>
+    <li><strong>V</strong> = Shear force (perpendicular to member axis)</li>
+    <li><strong>M</strong> = Bending moment</li>
+  </ul>
+
+  <p><strong>Procedure:</strong></p>
+  <div class="step"><span class="num">1</span>Find external reactions (full FBD first)</div>
+  <div class="step"><span class="num">2</span>Cut at desired section</div>
+  <div class="step"><span class="num">3</span>Draw FBD of one side (choose simpler side)</div>
+  <div class="step"><span class="num">4</span>Show N, V, M at cut face with positive sign convention</div>
+  <div class="step"><span class="num">5</span>Apply ΣFx = 0, ΣFy = 0, ΣM_cut = 0</div>
+
+  <h3>7.2: Beams — Shear &amp; Moment</h3>
+
+  <p><strong>Sign Convention (standard beam):</strong></p>
+  <div class="sign-conv">
+    <div class="item pos"><strong>+V:</strong> Causes CW rotation of segment</div>
+    <div class="item neg"><strong>−V:</strong> Causes CCW rotation of segment</div>
+    <div class="item pos"><strong>+M:</strong> Causes beam to "smile" (concave up)</div>
+    <div class="item neg"><strong>−M:</strong> Causes beam to "frown" (concave down)</div>
+  </div>
+
+  <p style="margin-top:8px;"><strong>On a left-side FBD:</strong></p>
+  <div class="eq-block">
++V = upward on left face (↑)
++N = outward (tension)
++M = counterclockwise on left face
+  </div>
+
+  <p><strong>Key relationships:</strong></p>
+  <div class="eq-block">
+dV/dx = −w(x)     (w = distributed load intensity, + downward)
+dM/dx = V
+  </div>
+
+  <p>These mean:</p>
+  <ul>
+    <li>Where w = 0: V is constant, M is linear</li>
+    <li>Where w = constant: V is linear, M is parabolic</li>
+    <li>At a concentrated force: V has a jump discontinuity</li>
+    <li>At a concentrated moment: M has a jump discontinuity</li>
+    <li>V = 0 at a point → M is at a local max or min there</li>
+  </ul>
+
+  <div class="divider"></div>
+  <h3>SFD/BMD Construction (Prof's 7-Example Method)</h3>
+
+  <div class="step"><span class="num">1</span><strong>Reactions first</strong> — Draw full FBD, solve for all support reactions.</div>
+  <div class="step"><span class="num">2</span><strong>Start from left</strong> — Begin V at x = 0. At left support, V jumps by the reaction force.</div>
+  <div class="step"><span class="num">3</span><strong>Walk right</strong> — Between loads: V changes by −w·Δx. At each concentrated force: V jumps ±P.</div>
+  <div class="step"><span class="num">4</span><strong>V = 0 at right end</strong> — If not, recheck reactions.</div>
+  <div class="step"><span class="num">5</span><strong>M from V</strong> — M starts at 0 (unless fixed support). ΔM = area under V diagram between two points.</div>
+  <div class="step"><span class="num">6</span><strong>Shape rules</strong> — V constant → M linear. V linear → M parabolic. V = 0 → M is max/min.</div>
+  <div class="step"><span class="num">7</span><strong>At concentrated couple</strong> — M jumps by the couple value. V is unaffected.</div>
+
+  <div class="warn">
+    <strong>Check:</strong> M must be 0 at both ends for simply-supported beams. If M ≠ 0 at a free end, you have an error.
+  </div>
+</div>
+
+<!-- ═══════════ FBD MASTER PROCEDURE ═══════════ -->
+<div class="ch" id="fbd">Free Body Diagram — Master Procedure</div>
+
+<div class="card">
+  <div class="step"><span class="num">1</span><strong>Isolate</strong> — Draw the body SEPARATED from all supports and connections. Sketch its shape.</div>
+  <div class="step"><span class="num">2</span><strong>Weight</strong> — Draw weight W = mg at the center of gravity (↓ always).</div>
+  <div class="step"><span class="num">3</span><strong>Applied forces</strong> — Draw all given external forces and couples at their points of application.</div>
+  <div class="step"><span class="num">4</span><strong>Reactions</strong> — At each support, replace it with the correct reaction forces/moments (see support table). Label each unknown with a letter (Ax, Ay, By, etc.).</div>
+  <div class="step"><span class="num">5</span><strong>Dimensions</strong> — Add all relevant distances needed for moment calculations.</div>
+  <div class="step"><span class="num">6</span><strong>Assume directions</strong> — If unknown, assume positive directions. If your answer is negative, the actual direction is opposite.</div>
+
+  <div class="warn">
+    <strong>FBD Checklist (check EVERY time):</strong>
+    <ul>
+      <li>☐ Body is completely isolated (no supports touching it)</li>
+      <li>☐ All external forces shown</li>
+      <li>☐ All support reactions shown with correct type and direction</li>
+      <li>☐ Weight included (unless negligible/not given)</li>
+      <li>☐ All dimensions/angles labeled</li>
+      <li>☐ Coordinate axes shown</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════ PROBLEM-SOLVING STRATEGY ═══════════ -->
+<div class="ch" id="strat">Problem-Solving Strategy</div>
+
+<div class="card">
+  <h3>The 5-Step Method</h3>
+
+  <div class="step"><span class="num">1</span><strong>READ</strong> — Identify what's given, what's asked. Sketch the setup.</div>
+  <div class="step"><span class="num">2</span><strong>FBD</strong> — Draw a complete free body diagram. Count unknowns. Confirm solvable (unknowns ≤ equations).</div>
+  <div class="step"><span class="num">3</span><strong>EQUATIONS</strong> — Write equilibrium equations. Choose moment points wisely to minimize simultaneous equations.</div>
+  <div class="step"><span class="num">4</span><strong>SOLVE</strong> — Solve equations. Keep units. Check signs.</div>
+  <div class="step"><span class="num">5</span><strong>CHECK</strong> — Verify with an unused equation. Do directions make physical sense?</div>
+
+  <h3>Moment Point Selection (Key Skill)</h3>
+  <ul>
+    <li>Take moments about a point where two unknowns intersect → one equation, one unknown</li>
+    <li>For horizontal beam: take ΣM at left pin → solve for right roller reaction directly</li>
+    <li>Sum forces in direction ⊥ to multiple unknowns → eliminates them</li>
+  </ul>
+
+  <h3>Distributed Loads</h3>
+  <div class="eq-block">
+Uniform load w (force/length):
+  Resultant: R = w × L    (at midpoint of loaded region)
+
+Triangular load (0 to w_max):
+  Resultant: R = ½ × w_max × L    (at ⅓ from heavy end)
+  </div>
+</div>
+
+<!-- ═══════════ COMMON TRAPS ═══════════ -->
+<div class="ch" id="traps">Common Traps &amp; Mistakes</div>
+
+<div class="card">
+  <div class="warn">
+    <strong>Trap 1: Wrong angle reference.</strong> θ measured from x-axis: Fx = F cos θ, Fy = F sin θ. θ measured from y-axis: Fx = F sin θ, Fy = F cos θ. ALWAYS check which axis θ is measured from.
+  </div>
+
+  <div class="warn">
+    <strong>Trap 2: Missing reaction at fixed support.</strong> A fixed (built-in) support has 3 reactions: Ax, Ay, AND MA (moment). Don't forget the moment reaction.
+  </div>
+
+  <div class="warn">
+    <strong>Trap 3: Wrong moment arm.</strong> The moment arm d is the PERPENDICULAR distance from the point to the LINE OF ACTION, not the distance to the point of application.
+  </div>
+
+  <div class="warn">
+    <strong>Trap 4: Sign errors in moments.</strong> Pick a sign convention (+ = CCW) and stick with it. Every force's moment must be evaluated: does it cause CW or CCW rotation about the chosen point?
+  </div>
+
+  <div class="warn">
+    <strong>Trap 5: Distributed load location.</strong> The resultant of a uniform load acts at the CENTER. The resultant of a triangular load acts at ⅓ from the HEAVY end. Don't confuse these.
+  </div>
+
+  <div class="warn">
+    <strong>Trap 6: Assuming cable can push.</strong> Cables, ropes, and strings can only be in TENSION. If your calculation gives negative tension → cable is slack → force = 0.
+  </div>
+
+  <div class="warn">
+    <strong>Trap 7: Not simplifying 3D moments.</strong> For 3D cross products, use the determinant method carefully. Sign errors in cross products are the #1 source of wrong answers.
+  </div>
+
+  <div class="warn">
+    <strong>Trap 8: Internal vs external forces.</strong> Newton's 3rd law pairs CANCEL in FBDs. Only include forces from OUTSIDE the isolated system. If analyzing the whole beam, internal hinge forces don't appear.
+  </div>
+</div>
+
+<!-- ═══════════ QUICK REFERENCE ═══════════ -->
+<div class="ch">Quick Reference Formulas</div>
+
+<div class="card">
+  <div class="eq-block">
+=== PARTICLE EQUILIBRIUM ===
+2D: ΣFx = 0, ΣFy = 0                    (2 unknowns)
+3D: ΣFx = 0, ΣFy = 0, ΣFz = 0          (3 unknowns)
+
+=== RIGID BODY EQUILIBRIUM ===
+2D: ΣFx = 0, ΣFy = 0, ΣM_A = 0         (3 unknowns)
+3D: ΣF = 0, ΣM = 0                      (6 unknowns)
+
+=== MOMENT ===
+Scalar: M = F·d           (d = ⊥ distance)
+Vector: M = r × F         (cross product)
+Axis:   M_L = λ · (r × F) (scalar triple product)
+
+=== COUPLE ===
+|M| = F·d      (same about ANY point)
+Couples are free vectors — can move anywhere
+
+=== RESULTANT ===
+R = ΣF                    (force)
+M_O = Σ(r × F) + ΣM_c    (moment about O)
+
+=== CROSS PRODUCT ===
+î × ĵ = k̂    ĵ × k̂ = î    k̂ × î = ĵ
+ĵ × î = −k̂   k̂ × ĵ = −î   î × k̂ = −ĵ
+
+=== DOT PRODUCT ===
+A·B = |A||B|cos θ = AxBx + AyBy + AzBz
+
+=== INTERNAL FORCES ===
+N (normal), V (shear), M (moment)
+dV/dx = −w      dM/dx = V
+
+=== TRIG IDENTITIES ===
+sin²θ + cos²θ = 1
+sin(2θ) = 2 sin θ cos θ
+Law of Cosines: c² = a² + b² − 2ab cos C
+Law of Sines:   a/sin A = b/sin B = c/sin C
+  </div>
+</div>
+
+<footer>
+  CE 95 Midterm #1 Review · Beer "Vector Mechanics for Engineers" · Spring 2026<br>
+  Updated with Prof. Mehran's lecture emphasis · Works offline (airplane mode). Print-friendly: Ctrl+P / ⌘+P<br>
+  <span style="color:var(--gold);">Study tip: Watch Jeff Hanson Statics videos (assigned by Prof.) — especially Lesson 22 (moments)</span>
+</footer>
+
+</body>
+</html>

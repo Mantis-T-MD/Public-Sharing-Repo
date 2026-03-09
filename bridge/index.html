@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Bridge — Cross-Device Setup</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3; --dim: #8b949e; --accent: #58a6ff; --green: #3fb950; --orange: #d29922; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.8em; margin-bottom: 8px; }
+  h2 { color: var(--accent); font-size: 1.3em; margin: 28px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  h3 { color: var(--green); font-size: 1.1em; margin: 18px 0 8px; }
+  .subtitle { color: var(--dim); margin-bottom: 24px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; }
+  .card.highlight { border-color: var(--accent); }
+  .card.warn { border-color: var(--orange); }
+  code { background: #1c2128; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--green); }
+  pre { background: #1c2128; border: 1px solid var(--border); border-radius: 8px; padding: 14px; overflow-x: auto; margin: 10px 0; font-size: 0.85em; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  .status { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+  .status.live { background: #0d2818; color: var(--green); border: 1px solid #238636; }
+  .label { color: var(--dim); font-size: 0.85em; }
+  ul { padding-left: 20px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+  .copy-btn { background: var(--accent); color: #000; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8em; float: right; }
+  .copy-btn:hover { opacity: 0.8; }
+</style>
+</head>
+<body>
+
+<h1>🔗 Agent Bridge — Cross-Device Communication</h1>
+<p class="subtitle">Connect AI agents across devices via Tailscale + Trajectory Deck</p>
+
+<div class="card highlight">
+  <h3>Quick Start for AI Agents</h3>
+  <p>Copy this entire block into any AI agent's context on the work laptop or Razer Blade:</p>
+  <pre><code># Cross-Device Agent Bridge
+# S23 (Galaxy) runs the Trajectory Deck server.
+# Any device on the Tailscale network can communicate with it.
+
+S23_TAILSCALE_IP="100.109.67.85"
+DECK_URL="http://100.109.67.85:8080"
+
+# Test connectivity:
+curl -sf ${DECK_URL}/api/goals && echo "Connected"
+
+# Post a question to the S23 Dashboard (user sees it, responds):
+curl -sf -X POST ${DECK_URL}/api/agent/question \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"Hello from the laptop agent!"}'
+
+# Long-poll for response (blocks up to 120s):
+# Replace QID with the "id" from the question response
+curl -sf "${DECK_URL}/api/agent/response?id=QID&wait=120"
+
+# Send a one-way message (no response expected):
+curl -sf -X POST ${DECK_URL}/api/agent/message \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"Status: task completed"}'
+
+# Check inbox (messages user sent from Dashboard):
+curl -sf "${DECK_URL}/api/agent/inbox?wait=5"</code></pre>
+</div>
+
+<h2>Architecture</h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>S23 (Galaxy) — Hub</h3>
+    <ul>
+      <li>Trajectory Deck server on <code>:8080</code></li>
+      <li>Tailscale IP: <code>100.109.67.85</code></li>
+      <li>Runs: Copilot CLI, Claude Code, Gemini CLI</li>
+      <li>Has: memory system, voice (Emily TTS), agent bridge</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Laptops — Spokes</h3>
+    <ul>
+      <li>Razer Blade: <code>100.87.156.50</code></li>
+      <li>Work laptop: <span class="label">(Tailscale IP TBD)</span></li>
+      <li>Connect via Tailscale VPN mesh</li>
+      <li>Use HTTP API to communicate with S23</li>
+    </ul>
+  </div>
+</div>
+
+<h2>API Reference</h2>
+
+<p>Base URL: <code>http://100.109.67.85:8080</code></p>
+
+<div class="card">
+  <h3>POST /api/agent/question</h3>
+  <p>Post a question from an agent. User sees it in the Dashboard and responds.</p>
+  <pre><code>Request:  {"text": "What should I work on?"}
+Response: {"id": "q-5", "ok": true}
+
+# Then long-poll for user's answer:
+GET /api/agent/response?id=q-5&wait=120
+Response: {"id": "q-5", "text": "Work on the auth module"}</code></pre>
+</div>
+
+<div class="card">
+  <h3>POST /api/agent/message</h3>
+  <p>Send a one-way message to Dashboard (no response expected).</p>
+  <pre><code>Request:  {"text": "Build completed successfully"}
+Response: {"ok": true}</code></pre>
+</div>
+
+<div class="card">
+  <h3>GET /api/agent/inbox?wait=N</h3>
+  <p>Poll for unprompted messages from the user (sent via Agent mode in Dashboard).</p>
+  <pre><code>Response: {"id": "u-3", "text": "Hey, switch to the auth branch"}</code></pre>
+</div>
+
+<div class="card">
+  <h3>GET /api/events</h3>
+  <p>Server-Sent Events stream. Real-time notifications of all agent activity.</p>
+  <pre><code>Event types:
+  agent_question  — agent posted a question
+  agent_message   — agent sent a status message
+  goal_update     — goal topology changed</code></pre>
+</div>
+
+<div class="card">
+  <h3>GET /api/goals</h3>
+  <p>Current goal topology (read-only). Useful for agents to understand context.</p>
+</div>
+
+<h2>Shell Script (deck-remote.sh)</h2>
+<p>Self-contained script — copy to any device:</p>
+
+<pre><code>#!/usr/bin/env bash
+# deck-remote.sh — Cross-device agent bridge via Tailscale
+set -euo pipefail
+S23_IP="${S23_IP:-100.109.67.85}"
+BASE="http://${S23_IP}:${DECK_PORT:-8080}"
+TIMEOUT="${DECK_TIMEOUT:-300}"
+
+_esc() { echo "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+
+case "${1:-help}" in
+  ping)
+    curl -sf --connect-timeout 5 "${BASE}/api/goals" -o /dev/null \
+      && echo "✓ S23 reachable at ${BASE}" || { echo "✗ Cannot reach S23" >&2; exit 1; } ;;
+  ask)
+    shift; q="$*"
+    qid=$(curl -sf -X POST "${BASE}/api/agent/question" \
+      -H 'Content-Type: application/json' \
+      -d "{\"text\":\"$(_esc "$q")\"}" | python3 -c "import sys,json;print(json.load(sys.stdin)['id'])")
+    echo "[deck] Question posted ($qid)" >&2
+    elapsed=0; poll=120
+    while [ "$elapsed" -lt "$TIMEOUT" ]; do
+      t=$(curl -sf "${BASE}/api/agent/response?id=${qid}&wait=${poll}" 2>/dev/null \
+        | python3 -c "import sys,json;print(json.load(sys.stdin).get('text',''))" 2>/dev/null || echo "")
+      [ -n "$t" ] && { echo "$t"; exit 0; }
+      elapsed=$((elapsed + poll))
+    done
+    echo "Timed out" >&2; exit 1 ;;
+  send)
+    shift; curl -sf -X POST "${BASE}/api/agent/message" \
+      -H 'Content-Type: application/json' -d "{\"text\":\"$(_esc "$*")\"}" -o /dev/null
+    echo "[deck] Sent" >&2 ;;
+  inbox)
+    curl -sf "${BASE}/api/agent/inbox?wait=5" 2>/dev/null \
+      | python3 -c "import sys,json;t=json.load(sys.stdin).get('text','');print(t if t else '(empty)')" ;;
+  *)
+    echo "Usage: deck-remote.sh {ping|ask|send|inbox} [text]"
+    echo "  S23_IP=$S23_IP  DECK_PORT=${DECK_PORT:-8080}" ;;
+esac</code></pre>
+
+<h2>Setup Checklist</h2>
+
+<div class="card">
+  <h3>1. Tailscale on all devices</h3>
+  <ul>
+    <li>S23: ✅ Installed (Android app), IP <code>100.109.67.85</code></li>
+    <li>Razer Blade: ✅ Installed, IP <code>100.87.156.50</code></li>
+    <li>Work laptop: Install from <a href="https://tailscale.com/download">tailscale.com/download</a>, log in with same account</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>2. Trajectory Deck running on S23</h3>
+  <p>Start from Termux: <code>cd ~/Termux-Dir-1-25-26 && python3 '(Trajectory-Deck)/server.py'</code></p>
+  <p>Or use the launcher: <code>deck</code></p>
+</div>
+
+<div class="card">
+  <h3>3. Test from laptop</h3>
+  <pre><code>curl http://100.109.67.85:8080/api/goals</code></pre>
+  <p>If this returns JSON, the bridge is live.</p>
+</div>
+
+<div class="card warn">
+  <h3>Security Note</h3>
+  <p>The Deck server has <strong>no authentication</strong>. It's only accessible via Tailscale (private VPN mesh), which provides encryption and access control. Don't expose port 8080 to the public internet.</p>
+</div>
+
+<h2>Context for AI Agents</h2>
+
+<div class="card highlight">
+  <p><strong>For any AI running on a laptop connected to this Tailscale network:</strong></p>
+  <ul>
+    <li>The S23 is the "hub" — it runs the memory system, voice assistant (Emily), and Trajectory Deck dashboard</li>
+    <li>Use the Agent Bridge API to ask the user questions, send status updates, or receive instructions</li>
+    <li>The user sees agent messages in the Dashboard's Agent Mode (🤖 tab)</li>
+    <li>Questions appear as pulsing blue cards; the user types a response which you receive via long-polling</li>
+    <li>Goal topology is at <code>/api/goals</code> — read it to understand current priorities</li>
+  </ul>
+</div>
+
+<p class="label" style="margin-top: 40px; text-align: center;">Last updated: March 9, 2026 • Trajectory Deck Agent Bridge v1</p>
+
+</body>
+</html>

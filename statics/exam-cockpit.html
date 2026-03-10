@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CE 95 — Exam Cockpit</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --text: #e0e0e8;
+    --dim: #8888a0;
+    --accent: #6c8aff;
+    --accent2: #ff6c8a;
+    --green: #4caf50;
+    --gold: #ffc107;
+    --orange: #ff9800;
+    --red: #f44336;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 12px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.4rem;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  h1 small {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--dim);
+    font-weight: 400;
+  }
+  .exam-bar {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--accent2);
+    font-weight: 600;
+    margin: 6px 0 14px;
+    padding: 6px;
+    background: rgba(255,108,138,0.08);
+    border-radius: 8px;
+  }
+  .section {
+    margin: 16px 0;
+  }
+  .section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gold);
+    padding: 6px 10px;
+    background: rgba(255,193,7,0.08);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 8px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 8px 0;
+  }
+  .step-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  @media (max-width: 500px) {
+    .step-grid { grid-template-columns: 1fr; }
+  }
+  .step {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 8px 10px;
+    background: rgba(108,138,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .step-text {
+    font-size: 0.85rem;
+  }
+  .step-text strong { color: var(--accent); }
+  .step-text .hint { color: var(--dim); font-size: 0.78rem; }
+
+  .tree-box {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .tree-box .find { color: var(--accent2); font-weight: 700; }
+  .tree-box .eq { color: var(--accent); }
+  .tree-box .given { color: var(--green); }
+  .tree-box .unknown { color: var(--orange); }
+
+  .decision {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 8px 10px;
+    border-left: 3px solid var(--accent);
+    margin: 6px 0;
+    background: rgba(108,138,255,0.04);
+    border-radius: 0 8px 8px 0;
+  }
+  .decision .q {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.88rem;
+    min-width: 20px;
+  }
+  .decision .opts {
+    font-size: 0.84rem;
+  }
+  .decision .opts span {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 2px 4px 2px 0;
+    font-size: 0.8rem;
+  }
+  .opt-a { background: rgba(76,175,80,0.15); color: var(--green); }
+  .opt-b { background: rgba(255,152,0,0.15); color: var(--orange); }
+
+  .eq-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .eq-table th {
+    text-align: left;
+    padding: 6px 10px;
+    background: rgba(108,138,255,0.08);
+    color: var(--accent);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .eq-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .eq-table .role { color: var(--gold); font-weight: 600; font-size: 0.8rem; }
+  .eq-table .formula {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--green);
+  }
+
+  .support-row {
+    display: flex;
+    gap: 8px;
+    margin: 6px 0;
+  }
+  .support-card {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .support-card .name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+  }
+  .support-card .analogy {
+    font-size: 0.75rem;
+    color: var(--dim);
+    font-style: italic;
+  }
+  .support-card .unknowns {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .s-roller { background: rgba(76,175,80,0.08); }
+  .s-roller .name { color: var(--green); }
+  .s-roller .unknowns { color: var(--green); }
+  .s-pin { background: rgba(255,193,7,0.08); }
+  .s-pin .name { color: var(--gold); }
+  .s-pin .unknowns { color: var(--gold); }
+  .s-fixed { background: rgba(255,108,138,0.08); }
+  .s-fixed .name { color: var(--accent2); }
+  .s-fixed .unknowns { color: var(--accent2); }
+
+  .trap {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 10px;
+    margin: 4px 0;
+    border-left: 3px solid var(--red);
+    background: rgba(244,67,54,0.04);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.84rem;
+  }
+  .trap .icon { font-size: 1rem; flex-shrink: 0; }
+  .trap strong { color: var(--accent2); }
+
+  .tip {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 10px;
+    margin: 4px 0;
+    border-left: 3px solid var(--green);
+    background: rgba(76,175,80,0.04);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.84rem;
+  }
+  .tip .icon { font-size: 1rem; flex-shrink: 0; }
+  .tip strong { color: var(--green); }
+
+  .nav-links {
+    text-align: center;
+    margin: 18px 0 8px;
+    font-size: 0.82rem;
+  }
+  .nav-links a {
+    color: var(--accent);
+    text-decoration: none;
+    margin: 0 8px;
+  }
+  .nav-links a:hover { text-decoration: underline; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 8px; font-size: 0.8rem; }
+    .card { border: 1px solid #ccc; background: #fafafa; }
+    .section-title { background: #f0f0f0; border-color: #999; color: #333; }
+    .step-num { background: #333; }
+    .tree-box { background: #f5f5f5; border-color: #ccc; }
+    .tree-box .find { color: #c00; }
+    .tree-box .eq { color: #006; }
+    .tree-box .given { color: #060; }
+    .tree-box .unknown { color: #960; }
+    .exam-bar { background: #fee; color: #c00; }
+  }
+</style>
+</head>
+<body>
+
+<h1>CE 95 — Exam Cockpit
+  <small>Strategy + Procedure — Not Formulas</small>
+</h1>
+<div class="exam-bar">
+  Midterm #1 &bull; Tue Mar 10, 4:30 PM &bull; ENG 341 &bull; Open book + 10 pg notes
+</div>
+
+<!-- ==================== 8-STEP TEMPLATE ==================== -->
+<div class="section">
+  <div class="section-title">🎯 Universal 8-Step Template</div>
+  <div class="card">
+    <div class="step-grid">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>IDENTIFY</strong><br>Particle or rigid body?<div class="hint">Forces at one point → particle (2 eqs). Object has size → rigid body (3 eqs).</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>FBD</strong><br>Isolate → gravity → supports → label<div class="hint">Draw object alone. Add W↓ at center (skip if "weightless"). Replace supports with forces.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>COUNT</strong><br>Unknowns vs equations<div class="hint">Particle: 2 eqs max. Rigid body: 3 eqs max. More unknowns → need more equations.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>DECOMPOSE</strong><br>Break angled forces → Fx, Fy<div class="hint">Fx = F cos θ, Fy = F sin θ. Do all trig HERE, not in the equations.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-text"><strong>MOMENT POINT</strong><br>Pick the point that kills unknowns<div class="hint">Take moments about a pin → eliminates Ax AND Ay. Fewer unknowns to solve for.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-text"><strong>EQUATIONS</strong><br>ΣFx=0 &nbsp; ΣFy=0 &nbsp; ΣM=0<div class="hint">Write all applicable equations. Right/up = +. CCW = +.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-text"><strong>SOLVE</strong><br>Fewest unknowns first, back-substitute<div class="hint">Start with the equation that has only 1 unknown. Plug result into next equation.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num">8</div>
+        <div class="step-text"><strong>CHECK</strong><br>Physical sense? Negative = flip<div class="hint">Negative result means you guessed direction wrong. Magnitude is still correct.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DECISION TREE ==================== -->
+<div class="section">
+  <div class="section-title">🌳 Exam Decision Tree — 4 Questions</div>
+  <div class="card">
+    <div class="decision">
+      <div class="q">Q1</div>
+      <div class="opts">
+        <strong>Particle or rigid body?</strong><br>
+        <span class="opt-a">All forces at one point → PARTICLE (ΣFx, ΣFy only)</span>
+        <span class="opt-b">Object has size, forces at different points → RIGID BODY (+ΣM)</span>
+      </div>
+    </div>
+    <div class="decision">
+      <div class="q">Q2</div>
+      <div class="opts">
+        <strong>Reactions or internal forces?</strong><br>
+        <span class="opt-a">Support reactions → FBD of whole object → 3 equations</span>
+        <span class="opt-b">Internal forces (Ch 7) → find reactions FIRST, then cut beam</span>
+      </div>
+    </div>
+    <div class="decision">
+      <div class="q">Q3</div>
+      <div class="opts">
+        <strong>Scalar or cross product for moments?</strong><br>
+        <span class="opt-a">Easy perpendicular distance → SCALAR (M = F × d)</span>
+        <span class="opt-b">Messy angles / 3D → CROSS PRODUCT (M = r × F)</span>
+      </div>
+    </div>
+    <div class="decision">
+      <div class="q">Q4</div>
+      <div class="opts">
+        <strong>Which moment point?</strong><br>
+        <span class="opt-a">Pick where most unknowns act → they vanish (zero moment arm)</span>
+        <span class="opt-b">Pin at A? → ΣM_A kills Ax and Ay in one shot</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DECOMPOSITION TREE ==================== -->
+<div class="section">
+  <div class="section-title">🔻 Decomposition Tree — Backward Chaining</div>
+  <div class="card">
+    <p style="font-size:0.84rem; color:var(--dim); margin-bottom:8px;">
+      Start from the ANSWER, expand unknowns downward until you hit givens, then solve upward.
+    </p>
+    <div class="tree-box"><span class="find">FIND: Reaction B_y</span>
+  │
+  ├── <span class="eq">Equation: ΣM_A = 0</span>  (eliminates Ax, Ay)
+  │     │
+  │     ├── <span class="unknown">B_y × distance_AB</span>  ← solve for this
+  │     ├── <span class="given">−P × distance_AP</span>   ← P is given, d is geometry
+  │     └── <span class="given">−W × distance_AW</span>   ← W is given or "neglect"
+  │
+  └── Result: <span class="given">B_y = (P·d_AP + W·d_AW) / d_AB</span>
+
+Then back-substitute:
+  <span class="find">FIND: A_y</span>
+  └── <span class="eq">ΣF_y = 0</span> → A_y = P + W − B_y  ← <span class="given">all known now</span>
+
+  <span class="find">FIND: A_x</span>
+  └── <span class="eq">ΣF_x = 0</span> → A_x = ... ← <span class="given">from horizontal forces</span></div>
+  </div>
+</div>
+
+<!-- ==================== EQUATION HIERARCHY ==================== -->
+<div class="section">
+  <div class="section-title">⚡ 7 Equations — 3 Bosses, 4 Workers</div>
+  <div class="card">
+    <table class="eq-table">
+      <tr><th colspan="3">Boss Equations (set = 0)</th></tr>
+      <tr>
+        <td class="role">BOSS 1</td>
+        <td class="formula">ΣFx = 0</td>
+        <td>Left–right forces cancel</td>
+      </tr>
+      <tr>
+        <td class="role">BOSS 2</td>
+        <td class="formula">ΣFy = 0</td>
+        <td>Up–down forces cancel</td>
+      </tr>
+      <tr>
+        <td class="role">BOSS 3</td>
+        <td class="formula">ΣM = 0</td>
+        <td>Rotation cancels (CCW = +)</td>
+      </tr>
+      <tr><th colspan="3">Worker Equations (compute ingredients)</th></tr>
+      <tr>
+        <td class="role">→ Fx</td>
+        <td class="formula">Fx = F cos θ</td>
+        <td>Feeds into Boss 1</td>
+      </tr>
+      <tr>
+        <td class="role">→ Fy</td>
+        <td class="formula">Fy = F sin θ</td>
+        <td>Feeds into Boss 2</td>
+      </tr>
+      <tr>
+        <td class="role">→ M scalar</td>
+        <td class="formula">M = F × d</td>
+        <td>Feeds into Boss 3 (easy geometry)</td>
+      </tr>
+      <tr>
+        <td class="role">→ M vector</td>
+        <td class="formula">M = r × F</td>
+        <td>Feeds into Boss 3 (messy angles / 3D)</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SUPPORT TYPES ==================== -->
+<div class="section">
+  <div class="section-title">📌 Support Types — Memory Hooks</div>
+  <div class="card">
+    <div class="support-row">
+      <div class="support-card s-roller">
+        <div class="name">ROLLER</div>
+        <div class="analogy">skateboard wheel</div>
+        <div>⊥ to surface only</div>
+        <div class="unknowns">1 unknown</div>
+      </div>
+      <div class="support-card s-pin">
+        <div class="name">PIN</div>
+        <div class="analogy">door hinge</div>
+        <div>Fx + Fy, free rotation</div>
+        <div class="unknowns">2 unknowns</div>
+      </div>
+      <div class="support-card s-fixed">
+        <div class="name">FIXED</div>
+        <div class="analogy">flagpole in concrete</div>
+        <div>Fx + Fy + M</div>
+        <div class="unknowns">3 unknowns</div>
+      </div>
+    </div>
+    <div class="tip">
+      <div class="icon">💡</div>
+      <div>More movement prevented = more unknowns. The pattern: 1 → 2 → 3.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CH 7: INTERNAL FORCES ==================== -->
+<div class="section">
+  <div class="section-title">✂️ Chapter 7 — Internal Forces (Cut Method)</div>
+  <div class="card">
+    <div class="step" style="margin-bottom:6px;">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Find support reactions</strong> for the whole beam first (8-step template)</div>
+    </div>
+    <div class="step" style="margin-bottom:6px;">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Cut</strong> the beam at the specified location</div>
+    </div>
+    <div class="step" style="margin-bottom:6px;">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Pick either side</strong> — draw its FBD (pick the simpler side!)</div>
+    </div>
+    <div class="step" style="margin-bottom:6px;">
+      <div class="step-num">4</div>
+      <div class="step-text"><strong>At the cut face</strong> — draw 3 unknowns: N (normal), V (shear), M (moment)</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-text"><strong>Apply ΣFx, ΣFy, ΣM at the cut</strong> — same 3 boss equations, 3 unknowns</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COMMON TRAPS ==================== -->
+<div class="section">
+  <div class="section-title">⚠️ Common Traps</div>
+  <div class="card">
+    <div class="trap">
+      <div class="icon">⚠️</div>
+      <div><strong>Negative answer ≠ mistake.</strong> It means you guessed the arrow direction wrong. Magnitude is correct — just flip the arrow.</div>
+    </div>
+    <div class="trap">
+      <div class="icon">⚠️</div>
+      <div><strong>Gravity default: always draw it</strong> unless the problem says "neglect weight" or "weightless." When in doubt, include it.</div>
+    </div>
+    <div class="trap">
+      <div class="icon">⚠️</div>
+      <div><strong>Perpendicular distance, not just any distance.</strong> Extend force into a line → drop a 90° line from the point to that line. Or: break into components and use simple horizontal/vertical distances.</div>
+    </div>
+    <div class="trap">
+      <div class="icon">⚠️</div>
+      <div><strong>Fixed support has 3 unknowns, not 2.</strong> Don't forget the moment reaction at a wall/cement connection.</div>
+    </div>
+    <div class="trap">
+      <div class="icon">⚠️</div>
+      <div><strong>Wrong angle reference.</strong> θ from horizontal → cos for x, sin for y. θ from vertical → sin for x, cos for y. Always check which axis θ is measured from.</div>
+    </div>
+    <div class="trap">
+      <div class="icon">⚠️</div>
+      <div><strong>Professor tests BOTH moment methods.</strong> Expect: (a) scalar F×d AND (b) r × F cross product for the SAME problem. Practice both.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SIGN CONVENTIONS ==================== -->
+<div class="section">
+  <div class="section-title">±  Sign Conventions</div>
+  <div class="card" style="display:flex; gap:12px; flex-wrap:wrap;">
+    <div style="flex:1; min-width:150px; text-align:center; padding:8px; background:rgba(76,175,80,0.08); border-radius:8px;">
+      <div style="font-size:1.5rem;">↑ →</div>
+      <div style="color:var(--green); font-weight:700;">+ Positive</div>
+      <div style="font-size:0.8rem; color:var(--dim);">Up, Right</div>
+    </div>
+    <div style="flex:1; min-width:150px; text-align:center; padding:8px; background:rgba(244,67,54,0.08); border-radius:8px;">
+      <div style="font-size:1.5rem;">↓ ←</div>
+      <div style="color:var(--red); font-weight:700;">− Negative</div>
+      <div style="font-size:0.8rem; color:var(--dim);">Down, Left</div>
+    </div>
+    <div style="flex:1; min-width:150px; text-align:center; padding:8px; background:rgba(76,175,80,0.08); border-radius:8px;">
+      <div style="font-size:1.5rem;">↺</div>
+      <div style="color:var(--green); font-weight:700;">+ CCW</div>
+      <div style="font-size:0.8rem; color:var(--dim);">Counter-clockwise</div>
+    </div>
+    <div style="flex:1; min-width:150px; text-align:center; padding:8px; background:rgba(244,67,54,0.08); border-radius:8px;">
+      <div style="font-size:1.5rem;">↻</div>
+      <div style="color:var(--red); font-weight:700;">− CW</div>
+      <div style="font-size:0.8rem; color:var(--dim);">Clockwise</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== NAVIGATION ==================== -->
+<div class="nav-links">
+  <a href="index.html">📘 Worked Solutions</a>
+  <a href="statics-master-tree.html">🌳 Full Decision Tree</a>
+  <a href="monofile-easy.html">📝 Easy Mode</a>
+</div>
+
+<p style="text-align:center; font-size:0.72rem; color:var(--dim); margin-top:16px;">
+  Generated for CE 95 Midterm #1 — Strategy layer, not formula sheet.
+  See midterm1-review for formulas. Print with Ctrl+P.
+</p>
+
+</body>
+</html>

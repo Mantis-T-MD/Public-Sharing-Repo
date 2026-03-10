@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>3D Beam Equilibrium Lab</title>
+<style>
+:root{--bg:#0f172a;--fg:#e2e8f0;--accent:#38bdf8;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--purple:#c084fc;--dim:#64748b;--card:rgba(15,23,42,0.92)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,-apple-system,sans-serif;overflow:hidden;height:100vh;width:100vw;-webkit-user-select:none;user-select:none}
+canvas{display:block;position:fixed;top:0;left:0;z-index:0}
+
+/* Progress bar */
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);transition:width .5s ease;z-index:200}
+
+/* Badge */
+.badge{position:fixed;top:12px;right:16px;z-index:150;background:var(--card);border:1px solid var(--purple);border-radius:20px;padding:4px 14px;font-size:.75rem;color:var(--purple);font-weight:700;backdrop-filter:blur(8px);letter-spacing:.3px}
+
+/* Info panel */
+.info-panel{position:fixed;top:50px;left:16px;right:16px;z-index:100;pointer-events:none}
+.info-card{background:var(--card);border:1px solid #334155;border-radius:12px;padding:16px 20px;backdrop-filter:blur(12px);max-width:480px;opacity:0;transform:translateY(12px);transition:all .5s ease;pointer-events:auto}
+.info-card.visible{opacity:1;transform:translateY(0)}
+.info-card h2{font-size:1.05rem;color:var(--yellow);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.info-card h2 .num{background:var(--yellow);color:#0f172a;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;flex-shrink:0}
+.info-card p,.info-card .detail{font-size:.88rem;line-height:1.55;color:#cbd5e1}
+.info-card .detail{margin-top:8px}
+.info-card .highlight{color:var(--accent);font-weight:600}
+.info-card .val-green{color:var(--green);font-weight:600}
+.info-card .val-red{color:var(--red);font-weight:600}
+.info-card .val-purple{color:var(--purple);font-weight:600}
+.info-card .val-yellow{color:var(--yellow);font-weight:600}
+
+/* Equation box */
+.eq-box{background:#0d1117;border:1px solid #334155;border-radius:8px;padding:10px 14px;margin:8px 0;font-family:'SF Mono','Fira Code','Cascadia Code',monospace;font-size:.82rem;line-height:1.7;color:var(--green);white-space:pre-wrap}
+.eq-box .label{color:var(--accent);font-weight:700}
+.eq-box .result{color:var(--yellow);font-weight:700}
+
+/* Callout */
+.callout{background:rgba(56,189,248,.08);border-left:3px solid var(--accent);padding:8px 12px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.84rem}
+.callout.good{background:rgba(74,222,128,.08);border-left-color:var(--green)}
+
+/* Controls */
+.controls{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(15,23,42,.95);border-top:1px solid #334155;padding:12px 16px;display:flex;gap:10px;align-items:center;backdrop-filter:blur(8px)}
+.controls button{border:none;border-radius:8px;padding:10px 20px;font-size:.95rem;font-weight:700;cursor:pointer;min-width:80px;transition:all .2s}
+.controls .next-btn{background:var(--accent);color:#0f172a}
+.controls .back-btn{background:#334155;color:var(--fg)}
+.controls button:disabled{opacity:.3;cursor:default}
+.controls .indicator{color:var(--dim);font-size:.82rem;margin-left:auto}
+
+/* 3D labels */
+.label-3d{position:fixed;z-index:50;pointer-events:none;font-size:.75rem;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;transition:opacity .4s;background:rgba(15,23,42,.8);backdrop-filter:blur(4px)}
+.label-3d.hidden{opacity:0}
+
+/* Mobile */
+@media(max-width:600px){
+  .info-card{max-width:100%;padding:12px 14px;left:8px;right:8px}
+  .info-card h2{font-size:.95rem}
+  .info-card p,.info-card .detail{font-size:.82rem}
+  .eq-box{font-size:.75rem;padding:8px 10px}
+  .controls button{padding:8px 14px;font-size:.85rem;min-width:60px}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="badge" id="badge">STEP 0 / 8</div>
+
+<div class="info-panel">
+  <div class="info-card visible" id="infoCard"></div>
+</div>
+
+<div class="controls">
+  <button class="back-btn" id="backBtn" disabled>← Back</button>
+  <button class="next-btn" id="nextBtn">Next →</button>
+  <span class="indicator" id="indicator">1 / 9</span>
+</div>
+
+<!-- 3D labels container -->
+<div id="labelsContainer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── Constants ───
+const BEAM_LEN = 6, BEAM_H = 0.18, BEAM_D = 0.3, BEAM_Y = 2;
+const COLORS = {
+  accent:'#38bdf8', green:'#4ade80', red:'#f87171',
+  yellow:'#fbbf24', purple:'#c084fc', dim:'#64748b',
+  beam:'#94a3b8', bg:0x0f172a, grid:'#1e293b'
+};
+const c = (hex) => new THREE.Color(hex);
+const TOTAL_STEPS = 9;
+
+// ─── Scene ───
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(COLORS.bg);
+scene.fog = new THREE.FogExp2(COLORS.bg, 0.04);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(8, 6, 8);
+camera.lookAt(3, 2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.body.prepend(renderer.domElement);
+
+// ─── Lights ───
+const ambient = new THREE.AmbientLight(0x334466, 0.6);
+scene.add(ambient);
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+dirLight.position.set(8, 12, 6);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.set(1024, 1024);
+dirLight.shadow.camera.near = 1; dirLight.shadow.camera.far = 30;
+dirLight.shadow.camera.left = -10; dirLight.shadow.camera.right = 10;
+dirLight.shadow.camera.top = 10; dirLight.shadow.camera.bottom = -10;
+scene.add(dirLight);
+const rimLight = new THREE.DirectionalLight(0x6688cc, 0.3);
+rimLight.position.set(-6, 4, -4);
+scene.add(rimLight);
+
+// ─── Grid Floor ───
+const gridGeo = new THREE.PlaneGeometry(60, 60, 60, 60);
+gridGeo.rotateX(-Math.PI / 2);
+const gridMat = new THREE.MeshBasicMaterial({ color: 0x0f172a, transparent: true, opacity: 0 });
+const gridFloor = new THREE.Mesh(gridGeo, gridMat);
+gridFloor.receiveShadow = true;
+scene.add(gridFloor);
+
+const gridHelper = new THREE.GridHelper(60, 60, 0x1e293b, 0x141c2e);
+gridHelper.material.transparent = true;
+gridHelper.material.opacity = 0.5;
+scene.add(gridHelper);
+
+// ─── Materials ───
+const beamMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.6, roughness: 0.3 });
+const supportMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.4, roughness: 0.5 });
+const ghostMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.2, roughness: 0.6, transparent: true, opacity: 0.15 });
+const glowMat = (hex) => new THREE.MeshStandardMaterial({ color: hex, emissive: hex, emissiveIntensity: 0.4, metalness: 0.1, roughness: 0.4 });
+
+// ─── Beam ───
+const beam = new THREE.Mesh(new THREE.BoxGeometry(BEAM_LEN, BEAM_H, BEAM_D), beamMat);
+beam.position.set(BEAM_LEN / 2, BEAM_Y, 0);
+beam.castShadow = true;
+beam.receiveShadow = true;
+scene.add(beam);
+
+// ─── Pin Support (triangle at x=0) ───
+const pinGroup = new THREE.Group();
+const triShape = new THREE.Shape();
+triShape.moveTo(0, 0); triShape.lineTo(0.5, 0); triShape.lineTo(0.25, BEAM_Y - BEAM_H / 2); triShape.closePath();
+const triGeo = new THREE.ExtrudeGeometry(triShape, { depth: 0.25, bevelEnabled: false });
+triGeo.translate(-0.25, 0, -0.125);
+const pinTri = new THREE.Mesh(triGeo, supportMat);
+pinTri.castShadow = true;
+pinGroup.add(pinTri);
+// small base plate
+const basePlate = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 0.35), supportMat);
+basePlate.position.y = 0.04;
+pinGroup.add(basePlate);
+pinGroup.position.set(0, 0, 0);
+scene.add(pinGroup);
+
+// ─── Roller Support (cylinder at x=6) ───
+const rollerGroup = new THREE.Group();
+const rollerCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.3, 24), supportMat);
+rollerCyl.rotation.x = Math.PI / 2;
+rollerCyl.position.y = BEAM_Y - BEAM_H / 2 - 0.25;
+rollerCyl.castShadow = true;
+rollerGroup.add(rollerCyl);
+// roller base
+const rollerBase = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 0.35), supportMat);
+rollerBase.position.y = BEAM_Y - BEAM_H / 2 - 0.5;
+rollerGroup.add(rollerBase);
+// little wheels
+for (let i = -1; i <= 1; i += 2) {
+  const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.36, 12), supportMat);
+  wheel.rotation.x = Math.PI / 2;
+  wheel.position.set(i * 0.2, BEAM_Y - BEAM_H / 2 - 0.56, 0);
+  rollerGroup.add(wheel);
+}
+rollerGroup.position.set(6, 0, 0);
+scene.add(rollerGroup);
+
+// ─── Arrow helper function ───
+function makeArrow(from, dir, len, hex, headLen, headW) {
+  headLen = headLen || 0.25;
+  headW = headW || 0.15;
+  const arrow = new THREE.ArrowHelper(
+    new THREE.Vector3(...dir).normalize(),
+    new THREE.Vector3(...from),
+    len, hex, headLen, headW
+  );
+  arrow.visible = false;
+  scene.add(arrow);
+  return arrow;
+}
+
+// ─── Applied Force Arrows ───
+const f400Arrow = makeArrow([2, BEAM_Y + 1.8, 0], [0, -1, 0], 1.5, 0xf87171);
+const f300Arrow = makeArrow([4, BEAM_Y + 1.6, 0], [Math.cos(-Math.PI/4), Math.sin(-Math.PI/4), 0], 1.4, 0xf87171);
+
+// ─── Reaction Arrows ───
+const axArrow = makeArrow([0, BEAM_Y, 0.4], [1, 0, 0], 1.2, 0x38bdf8);
+const ayArrow = makeArrow([-0.4, BEAM_Y - BEAM_H/2 - 0.1, 0], [0, -1, 0], 1.2, 0x4ade80);
+const byArrow = makeArrow([6.4, BEAM_Y - BEAM_H/2 - 0.1, 0], [0, -1, 0], 1.0, 0xc084fc);
+
+// ─── Component Arrows (step 4) ───
+const fxComp = makeArrow([4, BEAM_Y + 0.5, 0], [1, 0, 0], 1.0, 0xfbbf24);
+const fyComp = makeArrow([4, BEAM_Y + 0.5, 0], [0, -1, 0], 1.0, 0xfbbf24);
+
+// ─── Moment visualization (step 5) ───
+const pivotGlow = new THREE.Mesh(
+  new THREE.SphereGeometry(0.15, 24, 24),
+  new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.8, transparent: true, opacity: 0.8 })
+);
+pivotGlow.position.set(0, BEAM_Y, 0);
+pivotGlow.visible = false;
+scene.add(pivotGlow);
+
+// pivot ring
+const ringGeo = new THREE.TorusGeometry(0.35, 0.02, 16, 48);
+const ringMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.5, transparent: true, opacity: 0.5 });
+const pivotRing = new THREE.Mesh(ringGeo, ringMat);
+pivotRing.rotation.x = Math.PI / 2;
+pivotRing.position.set(0, BEAM_Y, 0);
+pivotRing.visible = false;
+scene.add(pivotRing);
+
+// ─── Moment arm dashed lines ───
+function makeDashedLine(from, to, hex) {
+  const pts = [new THREE.Vector3(...from), new THREE.Vector3(...to)];
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  const mat = new THREE.LineDashedMaterial({ color: hex, dashSize: 0.15, gapSize: 0.1, linewidth: 1, transparent: true, opacity: 0.7 });
+  const line = new THREE.Line(geo, mat);
+  line.computeLineDistances();
+  line.visible = false;
+  scene.add(line);
+  return line;
+}
+const armLineRed = makeDashedLine([0, BEAM_Y - 0.5, 0], [2, BEAM_Y - 0.5, 0], 0xf87171);
+const armLineYellow = makeDashedLine([0, BEAM_Y - 0.8, 0], [4, BEAM_Y - 0.8, 0], 0xfbbf24);
+const armLinePurple = makeDashedLine([0, BEAM_Y - 1.1, 0], [6, BEAM_Y - 1.1, 0], 0xc084fc);
+
+// ─── Equilibrium glow (step 8) ───
+const beamGlowMat = new THREE.MeshStandardMaterial({ color: 0x4ade80, emissive: 0x4ade80, emissiveIntensity: 0.3, metalness: 0.5, roughness: 0.3, transparent: true, opacity: 0.5 });
+const beamGlow = new THREE.Mesh(new THREE.BoxGeometry(BEAM_LEN + 0.1, BEAM_H + 0.1, BEAM_D + 0.1), beamGlowMat);
+beamGlow.position.copy(beam.position);
+beamGlow.visible = false;
+scene.add(beamGlow);
+
+// ─── 3D Labels System ───
+const labels = {};
+const labelsContainer = document.getElementById('labelsContainer');
+
+function addLabel(id, text, worldPos, color) {
+  const el = document.createElement('div');
+  el.className = 'label-3d hidden';
+  el.style.borderLeft = '3px solid ' + color;
+  el.style.color = color;
+  el.textContent = text;
+  labelsContainer.appendChild(el);
+  labels[id] = { el, pos: new THREE.Vector3(...worldPos), visible: false };
+}
+
+addLabel('pinA', 'Pin A', [0, BEAM_Y + 0.5, 0.5], COLORS.dim);
+addLabel('rollerB', 'Roller B', [6, BEAM_Y + 0.5, 0.5], COLORS.dim);
+addLabel('f400', '400 N ↓', [2, BEAM_Y + 2.2, 0], COLORS.red);
+addLabel('f300', '300 N @ 45°', [4.4, BEAM_Y + 1.8, 0], COLORS.red);
+addLabel('ax', 'Ax →', [0.6, BEAM_Y + 0.35, 0.5], COLORS.accent);
+addLabel('ay', 'Ay ↑', [-0.6, BEAM_Y + 0.6, 0], COLORS.green);
+addLabel('by', 'By ↑', [6.6, BEAM_Y + 0.6, 0], COLORS.purple);
+addLabel('fxComp', '212.1 N →', [4.8, BEAM_Y + 0.7, 0], COLORS.yellow);
+addLabel('fyComp', '212.1 N ↓', [3.5, BEAM_Y + 0.1, 0], COLORS.yellow);
+addLabel('arm2m', '2 m', [1, BEAM_Y - 0.35, 0.3], COLORS.red);
+addLabel('arm4m', '4 m', [2, BEAM_Y - 0.65, 0.3], COLORS.yellow);
+addLabel('arm6m', '6 m', [3, BEAM_Y - 0.95, 0.3], COLORS.purple);
+addLabel('axVal', 'Ax = 212.1 N', [0.6, BEAM_Y + 0.35, 0.5], COLORS.accent);
+addLabel('ayVal', 'Ay = 337.9 N', [-0.6, BEAM_Y + 0.6, 0], COLORS.green);
+addLabel('byVal', 'By = 274.4 N', [6.6, BEAM_Y + 0.6, 0], COLORS.purple);
+
+function showLabels(...ids) { Object.keys(labels).forEach(id => { const show = ids.includes(id); labels[id].visible = show; labels[id].el.classList.toggle('hidden', !show); }); }
+function updateLabels() {
+  const w2 = innerWidth / 2, h2 = innerHeight / 2;
+  Object.values(labels).forEach(lb => {
+    if (!lb.visible) return;
+    const v = lb.pos.clone().project(camera);
+    if (v.z > 1) { lb.el.style.display = 'none'; return; }
+    lb.el.style.display = '';
+    lb.el.style.left = (v.x * w2 + w2) + 'px';
+    lb.el.style.top = (-v.y * h2 + h2) + 'px';
+  });
+}
+
+// ─── Orbit Controls (inline) ───
+const orbit = { theta: 0.6, phi: 0.5, dist: 14, target: new THREE.Vector3(3, 2, 0), autoRotate: false, autoSpeed: 0.002, dragging: false, prevX: 0, prevY: 0 };
+const camTarget = { theta: orbit.theta, phi: orbit.phi, dist: orbit.dist, target: orbit.target.clone() };
+
+function orbitToCamera() {
+  const st = Math.sin(orbit.theta), ct = Math.cos(orbit.theta);
+  const sp = Math.sin(orbit.phi), cp = Math.cos(orbit.phi);
+  camera.position.set(
+    orbit.target.x + orbit.dist * cp * st,
+    orbit.target.y + orbit.dist * sp,
+    orbit.target.z + orbit.dist * cp * ct
+  );
+  camera.lookAt(orbit.target);
+}
+
+function onPointerDown(e) {
+  if (e.target.tagName === 'BUTTON') return;
+  orbit.dragging = true;
+  orbit.prevX = e.clientX || e.touches[0].clientX;
+  orbit.prevY = e.clientY || e.touches[0].clientY;
+}
+function onPointerMove(e) {
+  if (!orbit.dragging) return;
+  const x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+  const y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+  const dx = x - orbit.prevX, dy = y - orbit.prevY;
+  orbit.theta -= dx * 0.005;
+  orbit.phi = Math.max(0.1, Math.min(1.4, orbit.phi + dy * 0.005));
+  camTarget.theta = orbit.theta;
+  camTarget.phi = orbit.phi;
+  orbit.prevX = x; orbit.prevY = y;
+}
+function onPointerUp() { orbit.dragging = false; }
+function onWheel(e) {
+  orbit.dist = Math.max(4, Math.min(30, orbit.dist + e.deltaY * 0.01));
+  camTarget.dist = orbit.dist;
+  e.preventDefault();
+}
+
+renderer.domElement.addEventListener('mousedown', onPointerDown);
+renderer.domElement.addEventListener('touchstart', onPointerDown, { passive: true });
+window.addEventListener('mousemove', onPointerMove);
+window.addEventListener('touchmove', onPointerMove, { passive: true });
+window.addEventListener('mouseup', onPointerUp);
+window.addEventListener('touchend', onPointerUp);
+renderer.domElement.addEventListener('wheel', onWheel, { passive: false });
+
+// ─── Camera Transitions ───
+function setCamTarget(theta, phi, dist, tx, ty, tz) {
+  camTarget.theta = theta; camTarget.phi = phi; camTarget.dist = dist;
+  camTarget.target.set(tx, ty, tz);
+}
+function lerpCam(t) {
+  const s = 0.03 + t * 0.02;
+  orbit.theta += (camTarget.theta - orbit.theta) * s;
+  orbit.phi += (camTarget.phi - orbit.phi) * s;
+  orbit.dist += (camTarget.dist - orbit.dist) * s;
+  orbit.target.lerp(camTarget.target, s);
+  orbitToCamera();
+}
+
+// ─── Step Content ───
+const stepContent = [
+  // Step 0 — The Structure
+  { html: `<h2><span class="num">0</span> The Structure</h2>
+<p>A <span class="highlight">6 m horizontal beam</span> rests on two supports:</p>
+<p class="detail">• <strong>Pin support</strong> at left end (A) — resists horizontal & vertical movement<br>
+• <strong>Roller support</strong> at right end (B) — resists vertical movement only</p>
+<p class="detail">Applied loads:<br>
+• <span class="val-red">400 N downward</span> at 2 m from A<br>
+• <span class="val-red">300 N at 45°</span> (down-right) at 4 m from A</p>
+<div class="callout">🎯 Goal: Find all support reactions (Ax, Ay, By)</div>`,
+    setup(){ showLabels('pinA','rollerB','f400','f300'); orbit.autoRotate = true;
+      setVis([f400Arrow, f300Arrow], true);
+      setVis([axArrow, ayArrow, byArrow, fxComp, fyComp, pivotGlow, pivotRing, beamGlow], false);
+      setVis([armLineRed, armLineYellow, armLinePurple], false);
+      resetSupports(); setCamTarget(0.6, 0.5, 14, 3, 2, 0); }
+  },
+  // Step 1 — IDENTIFY
+  { html: `<h2><span class="num">1</span> IDENTIFY</h2>
+<p>This is a <span class="highlight">rigid body</span>, not a particle — forces don't all pass through one point.</p>
+<div class="callout">We need <strong>3 equilibrium equations</strong>:<br>ΣFx = 0 &nbsp;·&nbsp; ΣFy = 0 &nbsp;·&nbsp; ΣM = 0</div>
+<p class="detail">The beam can translate <em>and</em> rotate, so moment equilibrium is essential.</p>`,
+    setup(){ showLabels('pinA','rollerB','f400','f300'); orbit.autoRotate = true;
+      setVis([f400Arrow, f300Arrow], true);
+      setCamTarget(0.8, 0.45, 12, 3, 2.2, 0); }
+  },
+  // Step 2 — FBD
+  { html: `<h2><span class="num">2</span> FREE-BODY DIAGRAM</h2>
+<p>Remove supports → replace with <strong>reaction forces</strong>:</p>
+<p class="detail">
+  Pin A → <span class="highlight">Ax</span> (horizontal) + <span class="val-green">Ay</span> (vertical)<br>
+  Roller B → <span class="val-purple">By</span> (vertical only)
+</p>
+<div class="callout">Supports fade to ghosts; their <em>force equivalents</em> appear as arrows.</div>`,
+    setup(){ orbit.autoRotate = false;
+      showLabels('f400','f300','ax','ay','by');
+      setVis([f400Arrow, f300Arrow, axArrow, ayArrow, byArrow], true);
+      ghostSupports();
+      setCamTarget(0.5, 0.55, 12, 3, 2, 0); }
+  },
+  // Step 3 — COUNT
+  { html: `<h2><span class="num">3</span> COUNT</h2>
+<p><span class="highlight">3 unknowns</span>: Ax, Ay, By</p>
+<p><span class="highlight">3 equations</span>: ΣFx, ΣFy, ΣM</p>
+<div class="callout good">✓ Statically determinate — <strong>solvable!</strong></div>`,
+    setup(){ showLabels('ax','ay','by','f400','f300');
+      setVis([f400Arrow, f300Arrow, axArrow, ayArrow, byArrow], true);
+      setCamTarget(0.3, 0.6, 11, 3, 2, 0); }
+  },
+  // Step 4 — DECOMPOSE
+  { html: `<h2><span class="num">4</span> DECOMPOSE</h2>
+<p>The <span class="val-red">300 N</span> force at 45° splits into components:</p>
+<div class="eq-box"><span class="label">Fx</span> = 300 cos 45° = <span class="result">212.1 N →</span>
+<span class="label">Fy</span> = 300 sin 45° = <span class="result">212.1 N ↓</span></div>
+<p class="detail">The angled force fades; its <span class="val-yellow">rectangular components</span> remain.</p>`,
+    setup(){ orbit.autoRotate = false;
+      showLabels('f400','fxComp','fyComp','ax','ay','by');
+      setVis([f400Arrow, fxComp, fyComp, axArrow, ayArrow, byArrow], true);
+      f300Arrow.visible = false;
+      setCamTarget(0.1, 0.5, 10, 4, 2.2, 0); }
+  },
+  // Step 5 — MOMENT POINT
+  { html: `<h2><span class="num">5</span> MOMENT POINT</h2>
+<p>Take moments about <span class="highlight">point A</span> — the pin support.</p>
+<div class="callout">Ax and Ay pass through A → <strong>zero moment arm</strong> → they vanish from ΣM<sub>A</sub></div>
+<p class="detail">Moment arms (dashed lines):</p>
+<p class="detail">
+  <span class="val-red">400 N</span> → 2 m &nbsp;·&nbsp;
+  <span class="val-yellow">212.1 N ↓</span> → 4 m &nbsp;·&nbsp;
+  <span class="val-purple">By</span> → 6 m
+</p>`,
+    setup(){ showLabels('f400','fxComp','fyComp','ax','ay','by','arm2m','arm4m','arm6m');
+      setVis([f400Arrow, fxComp, fyComp, axArrow, ayArrow, byArrow, pivotGlow, pivotRing], true);
+      setVis([armLineRed, armLineYellow, armLinePurple], true);
+      setCamTarget(-0.2, 0.35, 11, 1.5, 2, 0); }
+  },
+  // Step 6 — EQUATIONS
+  { html: `<h2><span class="num">6</span> EQUATIONS</h2>
+<div class="eq-box"><span class="label">ΣM_A = 0:</span>
+By × 6 − 400 × 2 − 212.1 × 4 = 0
+6 By = 800 + 848.4 = 1648.4
+<span class="result">By = 274.7 N ↑</span></div>
+<div class="eq-box"><span class="label">ΣFy = 0:</span>
+Ay + By − 400 − 212.1 = 0
+Ay = 612.1 − 274.7
+<span class="result">Ay = 337.4 N ↑</span></div>
+<div class="eq-box"><span class="label">ΣFx = 0:</span>
+Ax − 212.1 = 0
+<span class="result">Ax = 212.1 N →</span></div>`,
+    setup(){ showLabels('f400','fxComp','fyComp','ax','ay','by');
+      setVis([f400Arrow, fxComp, fyComp, axArrow, ayArrow, byArrow, pivotGlow, pivotRing], true);
+      setVis([armLineRed, armLineYellow, armLinePurple], false);
+      setCamTarget(0.7, 0.5, 13, 3, 2, 0); }
+  },
+  // Step 7 — SOLVE
+  { html: `<h2><span class="num">7</span> SOLVE</h2>
+<p>All three unknowns determined:</p>
+<div class="eq-box"><span class="result">Ax = 212.1 N →</span>  (horizontal at pin)
+<span class="result">Ay = 337.9 N ↑</span>  (vertical at pin)
+<span class="result">By = 274.4 N ↑</span>  (vertical at roller)</div>
+<p class="detail">Reaction arrows now display their solved magnitudes.</p>`,
+    setup(){ showLabels('axVal','ayVal','byVal','f400','fxComp','fyComp');
+      setVis([f400Arrow, fxComp, fyComp, axArrow, ayArrow, byArrow], true);
+      setVis([pivotGlow, pivotRing, armLineRed, armLineYellow, armLinePurple], false);
+      // flip reaction arrows to point upward/correct direction
+      ayArrow.setDirection(new THREE.Vector3(0, 1, 0));
+      ayArrow.position.set(-0.4, BEAM_Y - BEAM_H/2 - 1.1, 0);
+      byArrow.setDirection(new THREE.Vector3(0, 1, 0));
+      byArrow.position.set(6.4, BEAM_Y - BEAM_H/2 - 1.0, 0);
+      setCamTarget(0.5, 0.5, 12, 3, 2, 0); }
+  },
+  // Step 8 — CHECK
+  { html: `<h2><span class="num">✓</span> CHECK</h2>
+<p><span class="val-green">Equilibrium verified!</span></p>
+<div class="eq-box"><span class="label">ΣFx:</span> 212.1 − 212.1 = <span class="result">0 ✓</span>
+<span class="label">ΣFy:</span> 337.9 + 274.4 − 400 − 212.1 = <span class="result">≈ 0 ✓</span>
+<span class="label">ΣM_A:</span> 274.4(6) − 400(2) − 212.1(4) = <span class="result">≈ 0 ✓</span></div>
+<div class="callout good">🟢 The beam is in static equilibrium. All forces and moments balance.</div>`,
+    setup(){ showLabels('axVal','ayVal','byVal','f400','fxComp','fyComp');
+      setVis([f400Arrow, fxComp, fyComp, axArrow, ayArrow, byArrow, beamGlow], true);
+      orbit.autoRotate = true;
+      setCamTarget(0.6, 0.45, 13, 3, 2, 0); }
+  }
+];
+
+// ─── Helpers ───
+function setVis(objs, v) { objs.forEach(o => { if(o) o.visible = v; }); }
+function ghostSupports() {
+  pinGroup.children.forEach(c => { c.material = ghostMat; });
+  rollerGroup.children.forEach(c => { c.material = ghostMat; });
+}
+function resetSupports() {
+  pinGroup.children.forEach(c => { c.material = supportMat; });
+  rollerGroup.children.forEach(c => { c.material = supportMat; });
+  // reset reaction arrow directions
+  ayArrow.setDirection(new THREE.Vector3(0, -1, 0));
+  ayArrow.position.set(-0.4, BEAM_Y - BEAM_H/2 - 0.1, 0);
+  byArrow.setDirection(new THREE.Vector3(0, -1, 0));
+  byArrow.position.set(6.4, BEAM_Y - BEAM_H/2 - 0.1, 0);
+}
+
+// ─── Step Navigation ───
+let current = 0;
+const infoCard = document.getElementById('infoCard');
+const badge = document.getElementById('badge');
+const nextBtn = document.getElementById('nextBtn');
+const backBtn = document.getElementById('backBtn');
+const indicatorEl = document.getElementById('indicator');
+const progressEl = document.getElementById('progress');
+
+function goToStep(n) {
+  if (n < 0 || n >= TOTAL_STEPS) return;
+  current = n;
+  // reset any step-specific state
+  resetSupports();
+  beamGlow.visible = false;
+  pivotGlow.visible = false;
+  pivotRing.visible = false;
+  orbit.autoRotate = false;
+
+  // transition card
+  infoCard.classList.remove('visible');
+  setTimeout(() => {
+    infoCard.innerHTML = stepContent[n].html;
+    stepContent[n].setup();
+    infoCard.classList.add('visible');
+  }, 150);
+
+  // UI updates
+  badge.textContent = 'STEP ' + n + ' / 8';
+  badge.style.borderColor = n === TOTAL_STEPS - 1 ? COLORS.green : COLORS.purple;
+  badge.style.color = n === TOTAL_STEPS - 1 ? COLORS.green : COLORS.purple;
+  backBtn.disabled = n === 0;
+  nextBtn.disabled = n === TOTAL_STEPS - 1;
+  nextBtn.textContent = n === TOTAL_STEPS - 1 ? 'Done ✓' : 'Next →';
+  indicatorEl.textContent = (n + 1) + ' / ' + TOTAL_STEPS;
+  progressEl.style.width = ((n + 1) / TOTAL_STEPS * 100) + '%';
+}
+
+nextBtn.addEventListener('click', () => goToStep(current + 1));
+backBtn.addEventListener('click', () => goToStep(current - 1));
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goToStep(current + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goToStep(current - 1); }
+});
+
+// Swipe (separate from orbit — only on info panel area or top half)
+let swStartX = 0, swStartY = 0;
+document.addEventListener('touchstart', e => {
+  swStartX = e.changedTouches[0].screenX;
+  swStartY = e.changedTouches[0].screenY;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].screenX - swStartX;
+  const dy = e.changedTouches[0].screenY - swStartY;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    goToStep(current + (dx < 0 ? 1 : -1));
+  }
+});
+
+// ─── Animate ───
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  // Auto-orbit
+  if (orbit.autoRotate && !orbit.dragging) {
+    camTarget.theta += orbit.autoSpeed;
+    orbit.theta += orbit.autoSpeed;
+  }
+
+  // Smooth camera
+  lerpCam(1);
+
+  // Pivot glow pulse
+  if (pivotGlow.visible) {
+    const s = 1 + 0.15 * Math.sin(t * 3);
+    pivotGlow.scale.setScalar(s);
+    pivotRing.scale.setScalar(1 + 0.1 * Math.sin(t * 2));
+  }
+
+  // Beam glow pulse
+  if (beamGlow.visible) {
+    beamGlowMat.opacity = 0.25 + 0.15 * Math.sin(t * 2.5);
+    beamGlowMat.emissiveIntensity = 0.2 + 0.15 * Math.sin(t * 2.5);
+  }
+
+  updateLabels();
+  renderer.render(scene, camera);
+}
+
+// ─── Resize ───
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ─── Init ───
+goToStep(0);
+orbitToCamera();
+animate();
+</script>
+</body>
+</html>
